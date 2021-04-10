@@ -225,10 +225,32 @@ class TableMenuForm(npyscreen.ActionForm):
         self.parentApp.switchForm('EDITROW')
 
     def deleteRow(self):
-        pass
+        if self.SQL_display.value:
+            self.yesOrNo = npyscreen.notify_yes_no(
+                "You are about to delete a row. This action cannot be undone. Proceed?", editw=1)
+            if self.yesOrNo:
+                # fix bug where always select index of first page result
+                self.SQL_display.value[0] += (self.page * self.parentApp.rows_per_page)
+                # This passes the table name, column names, column values to the function that deletes the row.
+                self.parentApp.db.delete_row(self.value, self.colnames, self.results[self.SQL_display.value[0]])
+                self.parentApp.switchForm('TableSelect')
+            else:
+                npyscreen.notify_confirm("Aborted. Your row was NOT deleted.", editw=1)
+        else:
+            npyscreen.notify_confirm("Please select a row to delete.", editw=1)
 
     def editRow(self):
-        pass
+        if self.SQL_display.value:
+            # fix bug where always select index of first page result
+            self.SQL_display.value[0] += (self.page * self.parentApp.rows_per_page)
+            npyscreen.notify_confirm(str(self.SQL_display.value))
+            self.parentApp.getForm('EDITROW').col_names = self.colnames
+            self.parentApp.getForm('EDITROW').col_values = self.results[self.SQL_display.value[0]]
+            self.parentApp.getForm('EDITROW').action = "edit"
+            self.parentApp.getForm('EDITROW').table_name = self.value
+            self.parentApp.switchForm('EDITROW')
+        else:
+            npyscreen.notify_confirm("Please select a row to edit.", editw=1)
 
     def firstPage(self):
         pass
