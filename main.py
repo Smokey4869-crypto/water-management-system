@@ -1,16 +1,6 @@
-import curses
 from math import *
-import datetime
-from math import floor
-from decimal import Decimal
-from threading import Timer
-import time
-# time in sec of showing
-# feedback message to a user
 import npyscreen
 from test import Database
-
-FEEDBACK_TIMEOUT = 6
 
 
 class FieldText(npyscreen.Pager):
@@ -146,30 +136,6 @@ class AboutUsListDisplay(npyscreen.ActionFormMinimal):
         self.parentApp.switchFormNow()
 
 
-# class TableOptionList(npyscreen.MultiLineAction):
-#     def __init__(self, *args, **keywords):
-#         super(TableOptionList, self).__init__(*args, **keywords)
-#
-#     def display_value(self, value):
-#         return "%s" % value
-#
-#     def actionHighlighted(self, act_on_this, keypress):
-#         # get name of selected option
-#         selection = act_on_this
-#         if selection == 'Add Row':
-#             self.parent.parentApp.switchForm('Add Row')
-#         elif selection == 'Edit Row':
-#             self.parent.parentApp.switchForm('Edit Row')
-#         elif selection == 'Delete Row':
-#             self.parent.parentApp.switchForm('Delete Row')
-#         elif selection == 'Select Another Table':
-#             self.parent.parentApp.switchForm('TableSelect')
-#         elif selection == 'Exit Application':
-#             self.parent.parentApp.tabMenuF.exit_application()
-#         else:
-#             self.parent.parentApp.switchForm(None)
-
-
 class TableMenuForm(npyscreen.ActionForm):
     # set screen redirection based on user choice
     CANCEL_BUTTON_TEXT = "Back"
@@ -179,13 +145,6 @@ class TableMenuForm(npyscreen.ActionForm):
         self.page = 0
         self.colnames = []
         self.results = []
-
-        # self.nextrely += 1
-        # self.action = self.add(TableOptionList, max_height=6,
-        #                        name='Select Action',
-        #                        values=['Add Row', 'Edit Row', 'Delete Row', 'Select Another Table', 'Exit Application'],
-        #                        scroll_exit=True
-        #                        )
 
         # can try another way, this is ugly
         self.SQL_display = self.add(npyscreen.SelectOne, max_height=17, editable=True, scroll_exit=True,
@@ -203,6 +162,9 @@ class TableMenuForm(npyscreen.ActionForm):
         self.delete_btn = self.add(npyscreen.ButtonPress, max_width=10, name='[Delete]', relx=-53, rely=-5)
         self.delete_btn.whenPressed = self.deleteRow
 
+        self.search_btn = self.add(npyscreen.ButtonPress, max_width=10, name='[Search]', relx=-43, rely=-5)
+        self.search_btn.whenPressed = self.search
+
         self.first_page_btn = self.add(npyscreen.ButtonPress, max_width=10, name='[First]', relx=-73, rely=-3)
         self.first_page_btn.whenPressed = self.firstPage
 
@@ -217,6 +179,10 @@ class TableMenuForm(npyscreen.ActionForm):
 
         # define exit on Esc
         self.how_exited_handers[npyscreen.wgwidget.EXITED_ESCAPE] = self.on_cancel
+
+    def search(self):
+        self.parentApp.getForm('SEARCHROW').table_name = self.value
+        self.parentApp.switchForm('SEARCHROW')
 
     def addRow(self):
         self.parentApp.getForm('EDITROW').col_names = self.colnames
@@ -253,24 +219,39 @@ class TableMenuForm(npyscreen.ActionForm):
             npyscreen.notify_confirm("Please select a row to edit.", editw=1)
 
     def firstPage(self):
-        pass
-
-    def prevPage(self):
-        pass
-
-    def nextPage(self):
-        pass
+        self.page = 0
+        self.displayResultsGrid(self.page)
+        self.SQL_display.update(clear=False)
+        self.display()
 
     def lastPage(self):
-        pass
+        self.page = self.total_pages - 1
+        self.displayResultsGrid(self.page)
+        self.SQL_display.update(clear=False)
+        self.display()
+
+    def nextPage(self):
+        if self.page < self.total_pages - 1:
+            self.page += 1
+        self.displayResultsGrid(self.page)
+        self.SQL_display.update(clear=False)
+        self.display()
+
+    def prevPage(self):
+        if self.page > 0:
+            self.page -= 1
+        self.displayResultsGrid(self.page)
+        self.SQL_display.update(clear=False)
+        self.display()
 
     def beforeEditing(self):
-        self.parentApp.rows_per_page = 15
+        self.parentApp.rows_per_page = 5
         self.SQL_display.value = None
         self.colnames, self.results = self.parentApp.db.browse_table(self.value)
+        print(self.results)
         col_names = ' ' * 3
         for x in range(0, len(self.colnames)):
-            col_names += " | " + self.colnames[x]
+            col_names += "   |   " + self.colnames[x]
 
         self.col_display.value = col_names
 
@@ -282,7 +263,7 @@ class TableMenuForm(npyscreen.ActionForm):
     def displayResultsGrid(self, page):
         # column titles
         # any thing you want, does not matter
-        self.SQL_display.column_titles = self.colnames
+        # self.SQL_display.column_titles = self.colnames
 
         # pagination
         start = self.page * self.parentApp.rows_per_page
@@ -294,6 +275,7 @@ class TableMenuForm(npyscreen.ActionForm):
             for i in range(0, len(self.colnames)):
                 row.append(result[i])
             self.SQL_display.values.append(row)
+        print(self.SQL_display.values)
 
     def exit_menu(self):
         self.h_exit_escape(None)
@@ -305,6 +287,51 @@ class TableMenuForm(npyscreen.ActionForm):
     def exit_application(self):
         self.parentApp.switchForm(None)
         self.parentApp.switchFormNow()
+
+
+class SearchRowForm(npyscreen.ActionForm):
+    def create(self):
+        self.value = None
+        self.query_result = None
+        self.nextrely += 1
+        self.chooser = self.add(npyscreen.SelectOne, max_height=2,
+                                scroll_exit=True)
+        self.chooser.values = ["Search by id", "Search by name"]
+        self.nextrely += 1
+        self.user_query = self.add(npyscreen.TitleText, name="Search Query:",
+                                   begin_entry_at=15, use_two_lines=False,
+                                   field_width=54)
+        self.nextrely -= 1
+        self.query_confirm = self.add(npyscreen.ButtonPress, name="OK", relx=70)
+        self.query_confirm.whenPressed = self.process_query
+
+        self.results = self.add(npyscreen.Pager, name="Results:", height=16,
+                                max_height=14, scroll_exit=True,
+                                slow_scroll=True, exit_left=True,
+                                exit_right=True)
+
+    def process_query(self):
+        if self.chooser.value[0] == 0:
+
+            self.query_result = self.parentApp.db.select_table_by_id(self.table_name, int(self.user_query.value))
+        elif self.chooser.value[0] == 1:
+            self.query_result = self.parentApp.db.select_table_by_name(self.table_name, self.user_query.value)
+
+        if not self.query_result:
+            npyscreen.notify_confirm(
+                "No results were found for your query. "
+                "Either Name or Licence Number does not exist in database.",
+                editw=1, title='Error')
+            return
+        print(self.query_result)
+        self.results.values = ['\n']
+        self.results.values = self.query_result
+
+    def on_ok(self):
+        self.parentApp.switchForm("Menu")
+
+    def on_cancel(self):
+        self.parentApp.switchForm('Menu')
 
 
 class EditRowForm(npyscreen.ActionForm):
@@ -370,8 +397,6 @@ class EditRowForm(npyscreen.ActionForm):
 
 
 class MyApplication(npyscreen.NPSAppManaged):
-    add_row_count = 0  # count number of calls to Add Row Form
-    edit_row_count = 0  # count number of calls to Edit Row Form
 
     def onStart(self):
         self.db = Database(filename="my_water.db")
@@ -380,7 +405,8 @@ class MyApplication(npyscreen.NPSAppManaged):
         self.aboutUsTableF = self.addForm('AboutUs', AboutUsListDisplay, name='Group Members')
         self.selectTableF = self.addForm('TableSelect', TableListDisplay, name='Select Table')
         self.tabMenuF = self.addForm('Menu', TableMenuForm, name='Menu Table')
-        self.addForm('EDITROW', EditRowForm, name="Edit Row")
+        self.editRowF = self.addForm('EDITROW', EditRowForm, name="Edit Row")
+        self.searchRowF = self.addForm('SEARCHROW', SearchRowForm, name='Search Row')
 
     def exit_application(self):
         self.switchForm(None)

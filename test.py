@@ -1,5 +1,6 @@
 import sqlite3
 import datetime
+import npyscreen
 
 
 class Database:
@@ -28,7 +29,6 @@ class Database:
         rows = []
         for result in results:
             rows.append(result[2])
-        print(rows)
         return rows
 
     def select_employee(self):
@@ -93,23 +93,65 @@ class Database:
         return self.result[1:len(self.result)]
 
     def add_row(self, table_name, columns, new_values):
-        query_string = "INSERT INTO %s " % table_name
+        query_string = "INSERT INTO %s (" % table_name
         query_string = query_string[:-1] + " VALUES ("
         for x in range(0, len(columns)):
-            query_string += "?" + ","
+            query_string += "%s" + ","
         query_string = query_string[:-1] + ");"
-        print(query_string)
         data = []
         for x in range(0, len(columns)):
             data.append(str(new_values[x]))
         self.cursorObj.execute(query_string, data)
         self.db.commit()
-        print(data)
+
+    def delete_row(self, table_name, columns, values):
+        query_string = '('
+        for x in range(0, len(columns)):
+            query_string += (columns[x] + " = '" + str(values[x]) + "' AND ")
+        query_string = "DELETE FROM %s WHERE " % table_name + query_string[:-5] + ');'  # debug
+        self.cursorObj.execute(query_string)
+        self.db.commit()
+        npyscreen.notify_confirm("Row deleted.")
+
+    def edit_row(self, table_name, columns, new_values, old_values):
+
+        # This part is just building the query string
+        query_string = "UPDATE %s SET " % table_name
+        for x in range(0, len(columns)):
+            query_string += (columns[x] + " = %s, ")
+        query_string = query_string[:-2] + ' WHERE ('
+        for x in range(0, len(columns)):
+            query_string += (columns[x] + " = %s AND ")
+        query_string = query_string[:-5] + ');'
+
+        # pass parameters as separate list. psycopg2 automatically converts Python objects to
+        # SQL literals, prevents injection attacks
+        data = []
+        for x in range(0, len(columns)):
+            data.append(str(new_values[x]))
+        for x in range(0, len(columns)):
+            data.append(str(old_values[x]))
+        print(query_string)
+        npyscreen.notify_confirm(query_string)  # debug
+        npyscreen.notify_confirm(data)  # debug
+        self.cursorObj.execute(query_string, data)
+        self.db.commit()
+        npyscreen.notify_confirm("Row updated.")
+
+    def select_table_by_id(self, table_name, id):
+        self.cursorObj.execute("SELECT * FROM %s WHERE id=%d;" % (table_name, id))
+        results = self.cursorObj.fetchall()
+        return list(results)
+
+    def select_table_by_name(self, table_name, name):
+        self.cursorObj.execute("SELECT * FROM '{}' WHERE name='{}';".format(table_name, name))
+        results = self.cursorObj.fetchall()
+        return list(results)
 
 
 def main():
     db = Database(filename='my_water.db', )
-    print(db.list_tables())
+    db.select_table_by_name(table_name="stupidtest", name="tran hong quan")
 
 
 if __name__ == '__main__':
