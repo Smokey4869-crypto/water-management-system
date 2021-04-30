@@ -1,12 +1,26 @@
 import sqlite3
 import datetime
-import npyscreen
 
 
 class Database:
     def __init__(self, filename):
         self.db = sqlite3.connect(filename)
         self.cursorObj = self.db.cursor()
+
+    def search(self, search_by, search_txt):
+        self.cursorObj.execute("select * from customers  where " + search_by + " LIKE '%" + search_txt + "%'")
+        self.db.commit()
+        results = self.cursorObj.fetchall()
+        print(results)
+        return results
+
+    def check_user_admin(self, username, password):
+        self.cursorObj.execute(
+            "SELECT * FROM adminlogin WHERE username='" + username + "' and password='" + password + "'")
+
+        results = self.cursorObj.fetchone()
+        self.db.commit()
+        return results
 
     def insert(self):
         self.values = 800
@@ -29,6 +43,11 @@ class Database:
         rows = []
         for result in results:
             rows.append(result[2])
+        return rows
+
+    def select_customers(self):
+        self.cursorObj.execute("SELECT * FROM customers")
+        rows = self.cursorObj.fetchall()
         return rows
 
     def select_employee(self):
@@ -111,32 +130,6 @@ class Database:
         query_string = "DELETE FROM %s WHERE " % table_name + query_string[:-5] + ');'  # debug
         self.cursorObj.execute(query_string)
         self.db.commit()
-        npyscreen.notify_confirm("Row deleted.")
-
-    def edit_row(self, table_name, columns, new_values, old_values):
-
-        # This part is just building the query string
-        query_string = "UPDATE %s SET " % table_name
-        for x in range(0, len(columns)):
-            query_string += (columns[x] + " = %s, ")
-        query_string = query_string[:-2] + ' WHERE ('
-        for x in range(0, len(columns)):
-            query_string += (columns[x] + " = %s AND ")
-        query_string = query_string[:-5] + ');'
-
-        # pass parameters as separate list. psycopg2 automatically converts Python objects to
-        # SQL literals, prevents injection attacks
-        data = []
-        for x in range(0, len(columns)):
-            data.append(str(new_values[x]))
-        for x in range(0, len(columns)):
-            data.append(str(old_values[x]))
-        print(query_string)
-        npyscreen.notify_confirm(query_string)  # debug
-        npyscreen.notify_confirm(data)  # debug
-        self.cursorObj.execute(query_string, data)
-        self.db.commit()
-        npyscreen.notify_confirm("Row updated.")
 
     def select_table_by_id(self, table_name, id):
         self.cursorObj.execute("SELECT * FROM %s WHERE id=%d;" % (table_name, id))
@@ -148,10 +141,77 @@ class Database:
         results = self.cursorObj.fetchall()
         return list(results)
 
+    def get_water_company_name(self, customer_id):
+        self.cursorObj.execute("SELECT suppliername from supplier,"
+                               "customers,billing WHERE supplier.areaid=customers.areaid "
+                               "and customers.custid=billing.custid and billing.custid='{}'".format(customer_id))
+
+        result = self.cursorObj.fetchone()
+        self.db.commit()
+        return result
+
+    def select_specific_customer(self, customer_id):
+        self.cursorObj.execute("SELECT * from customers WHERE custid='{}'".format(customer_id))
+        self.db.commit()
+        result = self.cursorObj.fetchone()
+        return result
+
+    # print bill
+    def get_information_bill(self, customer_id):
+        self.cursorObj.execute(
+            "SELECT * from billing WHERE custid= '{}'".format(customer_id))
+        rows = self.cursorObj.fetchone()
+        water_company_name = self.get_water_company_name(customer_id)[0]
+        customer_info = self.select_specific_customer(customer_id)
+        print(customer_info)
+        customer_name = customer_info[1]
+        no = rows[0]
+        cust_id = rows[1]
+        total_amount = rows[5]
+        from_date = rows[3]
+        to_date = rows[4]
+        water_amount = rows[2]
+        bill_name = 'bill_' + str(no) + '.txt'
+        m = ""
+        m += "============================================================\n"
+        m += "\n"
+        m += "                Water Bill" + "    " + "Bill number: %d\n\n" % no
+        m += "              Customer Id: %d\n\n" % cust_id
+        m += "------------------------------------------------------------\n"
+        m += water_company_name + "\n"
+        m += "Customer name:" + "      " + customer_name + "\n"
+        m += "Customer address:" + "   " + customer_info[3] + "\n"
+        m += "Customer phone:" + "     " + customer_info[4] + "\n"
+        m += "Time use water:" + "   " + from_date + " " + "to" + " " + to_date + "\n"
+        m += "Amount of water used:" + "   " + str(water_amount) + "m3" + "\n"
+        m += "Total money:" + "   " + str(total_amount) + "VND" + "\n"
+        m += "\n"
+        m += "                                       " + str(datetime.date.today()) + "\n"
+        m += "                                       " + "Signature" + "\n"
+        m += "                                     " + water_company_name + "\n"
+        m += "============================================================\n"
+        bill = open(bill_name, 'w')
+        bill.write(m)
+        bill.close()
+
+    def total_amount_of_water_by_area(self):
+        self.cursorObj.execute("SELECT areaname,SUM(wateramount) as Total_water_amount from billing,area,customers "
+                               "WHERE billing.custid=customers.custid and customers.areaid=area.areaid "
+                               "GROUP BY area.areaname "
+                               "ORDER BY SUM(wateramount) ASC")
+        results=self.cursorObj.fetchall()
+        labels=[]
+        water_amount=[]
+        for result in results:
+            labels.append(result[0])
+            water_amount.append(result[1])
+        return labels,water_amount
+
 
 def main():
     db = Database(filename='my_water.db', )
-    db.select_table_by_name(table_name="stupidtest", name="tran hong quan")
+    db.get_information_bill(1)
+    db.total_amount_of_water_by_area()
 
 
 if __name__ == '__main__':

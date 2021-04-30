@@ -4,6 +4,8 @@ from tkinter import font as tkfont
 from db import Database
 from tkinter import ttk
 from tkinter import messagebox
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 database = Database("my_water.db")
 
@@ -66,6 +68,18 @@ class MainApp():
     def cur(self):
         self.fm3 = Frame(self.master, bg='#1184e8', height=690, width=1350)
         self.fm3.place(x=0, y=110)
+
+        fig = plt.figure(figsize=(6, 6), dpi=100)
+        fig.set_size_inches(6, 4)
+        labels, water_amount = database.total_amount_of_water_by_area()
+        colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'Orange', 'red', 'blue', 'yellow', 'pink']
+        plt.pie(water_amount, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+
+        plt.axis('equal')  # creates the pie chart like a circle
+
+        canvasbar = FigureCanvasTkAgg(fig, master=self.fm3)
+        canvasbar.draw()
+        canvasbar.get_tk_widget().place(x=900, y=300, anchor=CENTER)  # show the barchart on the ouput window
 
         self.bt1 = Button(self.fm3, text='  Customers', fg='#fff', bg='#ff0076', font=('Arial', 15, 'bold'), bd=7,
                           width=10,
