@@ -6,6 +6,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+from testt import LeftFrame, RightFrame
 
 database = Database("my_water.db")
 
@@ -69,17 +70,19 @@ class MainApp():
         self.fm3 = Frame(self.master, bg='#1184e8', height=690, width=1350)
         self.fm3.place(x=0, y=110)
 
-        fig = plt.figure(figsize=(6, 6), dpi=100)
-        fig.set_size_inches(6, 4)
-        labels, water_amount = database.total_amount_of_water_by_area()
-        colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'Orange', 'red', 'blue', 'yellow', 'pink']
-        plt.pie(water_amount, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+        # fig = plt.figure(figsize=(5, 5), dpi=100)
+        # fig.set_size_inches(5, 3)
+        # labels, water_amount = database.total_amount_of_water_by_area()
+        # colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue', 'Orange', 'red', 'blue', 'yellow', 'pink']
+        # plt.pie(water_amount, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+        #
+        # plt.axis('equal')  # creates the pie chart like a circle
+        #
+        # canvasbar = FigureCanvasTkAgg(fig, master=self.fm3)
+        # canvasbar.draw()
+        # canvasbar.get_tk_widget().place(x=800, y=175, anchor=CENTER)
 
-        plt.axis('equal')  # creates the pie chart like a circle
-
-        canvasbar = FigureCanvasTkAgg(fig, master=self.fm3)
-        canvasbar.draw()
-        canvasbar.get_tk_widget().place(x=900, y=300, anchor=CENTER)  # show the barchart on the ouput window
+        # show the barchart on the ouput window
 
         self.bt1 = Button(self.fm3, text='  Customers', fg='#fff', bg='#ff0076', font=('Arial', 15, 'bold'), bd=7,
                           width=10,
@@ -140,33 +143,85 @@ class MainApp():
     def login(self):
         self.var1 = self.e1.get()
         self.var2 = self.e2.get()
-        self.ab = database.check_user_admin(self.var1, self.var2)
-        print(self.ab)
-        if self.ab != None:
-            # messagebox.showinfo('Library System',ab[1])
-            self.under_fm = Frame(self.master, height=700, width=1350, bg='#fff')
-            self.under_fm.place(x=0, y=0)
-            self.fm2 = Frame(self.master, bg='#0f624c', height=80, width=1350)
-            self.fm2.place(x=0, y=0)
+        if (self.var1 == "admin"):
+            self.ab = database.check_user_admin(self.var1, self.var2)
+            print(self.ab)
+            if self.ab != None:
+                # messagebox.showinfo('Library System',ab[1])
+                self.under_fm = Frame(self.master, height=700, width=1350, bg='#fff')
+                self.under_fm.place(x=0, y=0)
+                self.fm2 = Frame(self.master, bg='#0f624c', height=80, width=1350)
+                self.fm2.place(x=0, y=0)
 
-            self.lbb = Label(self.fm2, bg='#0f624c')
-            self.lbb.place(x=15, y=5)
-            self.ig = PhotoImage(file='images/library.png')
-            self.lbb.config(image=self.ig)
-            self.lb3 = Label(self.fm2, text='DASHBOARD', fg='White', bg='#0f624c', font=('Arial', 30, 'bold'))
-            self.lb3.place(x=325, y=17)
+                self.lbb = Label(self.fm2, bg='#0f624c')
+                self.lbb.place(x=15, y=5)
+                self.ig = PhotoImage(file='images/library.png')
+                self.lbb.config(image=self.ig)
+                self.lb3 = Label(self.fm2, text='DASHBOARD', fg='White', bg='#0f624c', font=('Arial', 30, 'bold'))
+                self.lb3.place(x=325, y=17)
 
-            # ----------------------------name------------------------
+                # ----------------------------name------------------------
 
-            self.name = Label(self.master, text="Name : ", bg='#fff', fg="black", font=('Arial', 10, 'bold'))
-            self.name.place(x=5, y=83)
-            self.name1 = Label(self.master, text=self.ab[1], fg='black', bg='#fff', font=('Arial', 10, 'bold'))
-            self.name1.place(x=60, y=83)
+                self.name = Label(self.master, text="Name : ", bg='#fff', fg="black", font=('Arial', 10, 'bold'))
+                self.name.place(x=5, y=83)
+                self.name1 = Label(self.master, text=self.ab[1], fg='black', bg='#fff', font=('Arial', 10, 'bold'))
+                self.name1.place(x=60, y=83)
 
-            self.cur()
+                self.cur()
 
+            else:
+                messagebox.showerror('Library System', 'Your ID or Password is not Valid')
         else:
-            messagebox.showerror('Library System', 'Your ID or Password is not Valid')
+            self.ab = database.check_customer(self.var1, self.var2)
+            print(self.ab)
+            if self.ab != None:
+                # messagebox.showinfo('Library System',ab[1])
+                self.under_fm = Frame(self.master, height=700, width=1350, bg='#fff')
+                self.under_fm.place(x=0, y=0)
+                self.fm2 = Frame(self.master, bg='#0f624c', height=80, width=1350)
+                self.fm2.place(x=0, y=0)
+
+                self.lbb = Label(self.fm2, bg='#0f624c')
+                self.lbb.place(x=15, y=5)
+                self.ig = PhotoImage(file='images/library.png')
+                self.lbb.config(image=self.ig)
+                self.lb3 = Label(self.fm2, text='DASHBOARD', fg='White', bg='#0f624c', font=('Arial', 30, 'bold'))
+                self.lb3.place(x=325, y=17)
+
+                # ----------------------------name------------------------
+
+                self.name = Label(self.master, text="Name : ", bg='#fff', fg="black", font=('Arial', 10, 'bold'))
+                self.name.place(x=5, y=83)
+                self.name1 = Label(self.master, text=self.ab[1], fg='black', bg='#fff', font=('Arial', 10, 'bold'))
+                self.name1.place(x=70, y=83)
+
+                # self.btn_frame = Frame(self.master, bd=3, bg="royal blue", relief=RIDGE)
+                # self.btn_frame.place(x=0, y=110, width=500, height=690)
+
+                self.right_frame = RightFrame(self.master)
+                self.right_frame.place(x=500, y=110, width=850, height=690)
+
+                self.left_frame = LeftFrame(self.master)
+                self.left_frame.var1 = self.var1
+                self.left_frame.btn_frame = self.right_frame
+                self.left_frame.place(x=0, y=110, width=500, height=690)
+
+
+                # self.btn1 = Button(self.btn_frame, text="View Water Consumption",
+                #                    command=lambda: self.view_water_consumption(self.var1, self.btn_frame),
+                #                    width=20).grid(row=0,
+                #                                   column=0,
+                #                                   padx=10,
+                #                                   pady=10)
+                # btn2 = Button(self.btn_frame, text="delete canvas",
+                #               width=20).grid(row=0,
+                #                              column=1,
+                #                              padx=10,
+                #                              pady=10)
+
+
+            else:
+                messagebox.showerror('Library System', 'Your ID or Password is not Valid')
 
     def move_to_customers(self):
         # ALL VARIABLES##
@@ -319,6 +374,45 @@ class MainApp():
             self.student_Table.delete(*self.student_Table.get_children())
             for self.row in self.rows:
                 self.student_Table.insert("", END, values=self.row)
+
+    def view_water_consumption(self, var1, fm3):
+        customer_month = []
+        water_amounts, months = database.total_amount_of_water_by_year(var1)
+        for month in months:
+            if (month[5:7] == "01"):
+                customer_month.append("January")
+            elif (month[5:7] == "02"):
+                customer_month.append("February")
+            elif (month[5:7] == "03"):
+                customer_month.append("March")
+            elif (month[5:7] == "04"):
+                customer_month.append("April")
+            elif (month[5:7] == "05"):
+                customer_month.append("May")
+            elif (month[5:7] == "06"):
+                customer_month.append("June")
+            elif (month[5:7] == "07"):
+                customer_month.append("July")
+            elif (month[5:7] == "08"):
+                customer_month.append("August")
+
+            elif (month[5:7] == "09"):
+                customer_month.append("September")
+            elif (month[5:7] == "10"):
+                customer_month.append("October")
+            elif (month[5:7] == "11"):
+                customer_month.append("November")
+            elif (month[5:7] == "12"):
+                customer_month.append("December")
+        fig2 = plt.figure(figsize=(4, 4), dpi=100)
+        plt.bar(customer_month, water_amounts, color='maroon',
+                width=0.4)
+        plt.xlabel("Month")
+        plt.ylabel("Water amount")
+        plt.title("Water consumption in 2021")
+        canvasinter = FigureCanvasTkAgg(fig2, master=fm3)
+        canvasinter.draw()
+        canvasinter.get_tk_widget().place(x=800, y=400, anchor=CENTER)
 
     def add_customers(self):
         pass
