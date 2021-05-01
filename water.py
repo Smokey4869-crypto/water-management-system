@@ -147,7 +147,7 @@ class MainApp():
             self.ab = database.check_user_admin(self.var1, self.var2)
             print(self.ab)
             if self.ab != None:
-                # messagebox.showinfo('Library System',ab[1])
+
                 self.under_fm = Frame(self.master, height=700, width=1350, bg='#fff')
                 self.under_fm.place(x=0, y=0)
                 self.fm2 = Frame(self.master, bg='#0f624c', height=80, width=1350)
@@ -175,7 +175,7 @@ class MainApp():
             self.ab = database.check_customer(self.var1, self.var2)
             print(self.ab)
             if self.ab != None:
-                # messagebox.showinfo('Library System',ab[1])
+
                 self.under_fm = Frame(self.master, height=700, width=1350, bg='#fff')
                 self.under_fm.place(x=0, y=0)
                 self.fm2 = Frame(self.master, bg='#0f624c', height=80, width=1350)
@@ -205,7 +205,6 @@ class MainApp():
                 self.left_frame.var1 = self.var1
                 self.left_frame.btn_frame = self.right_frame
                 self.left_frame.place(x=0, y=110, width=500, height=690)
-
 
                 # self.btn1 = Button(self.btn_frame, text="View Water Consumption",
                 #                    command=lambda: self.view_water_consumption(self.var1, self.btn_frame),
@@ -374,45 +373,6 @@ class MainApp():
             self.student_Table.delete(*self.student_Table.get_children())
             for self.row in self.rows:
                 self.student_Table.insert("", END, values=self.row)
-
-    def view_water_consumption(self, var1, fm3):
-        customer_month = []
-        water_amounts, months = database.total_amount_of_water_by_year(var1)
-        for month in months:
-            if (month[5:7] == "01"):
-                customer_month.append("January")
-            elif (month[5:7] == "02"):
-                customer_month.append("February")
-            elif (month[5:7] == "03"):
-                customer_month.append("March")
-            elif (month[5:7] == "04"):
-                customer_month.append("April")
-            elif (month[5:7] == "05"):
-                customer_month.append("May")
-            elif (month[5:7] == "06"):
-                customer_month.append("June")
-            elif (month[5:7] == "07"):
-                customer_month.append("July")
-            elif (month[5:7] == "08"):
-                customer_month.append("August")
-
-            elif (month[5:7] == "09"):
-                customer_month.append("September")
-            elif (month[5:7] == "10"):
-                customer_month.append("October")
-            elif (month[5:7] == "11"):
-                customer_month.append("November")
-            elif (month[5:7] == "12"):
-                customer_month.append("December")
-        fig2 = plt.figure(figsize=(4, 4), dpi=100)
-        plt.bar(customer_month, water_amounts, color='maroon',
-                width=0.4)
-        plt.xlabel("Month")
-        plt.ylabel("Water amount")
-        plt.title("Water consumption in 2021")
-        canvasinter = FigureCanvasTkAgg(fig2, master=fm3)
-        canvasinter.draw()
-        canvasinter.get_tk_widget().place(x=800, y=400, anchor=CENTER)
 
     def add_customers(self):
         pass

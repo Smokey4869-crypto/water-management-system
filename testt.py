@@ -15,30 +15,28 @@ class LeftFrame(tk.Frame):
         super().__init__(parent)
         self.var1 = ""
         self.btn_frame = None
-        self.canvasinter = None
+        self.fig = plt.figure(figsize=(6, 6), dpi=80, tight_layout={'pad': 1})
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.btn_frame)
         self.ax = None
         self.db = Database(filename="my_water.db")
+
         self.config(bd=3, bg="royal blue", relief=RIDGE)
         self.create_widget()
 
     def create_widget(self):
         self.btn1 = Button(self, text="View Water Consumption",
-                           command=lambda: self.view_water_consumption(self.btn_frame), width=20).grid(row=0,
+                           command=lambda: self.view_water_consumption(), width=20).grid(row=0,
                                                                                                        column=0,
                                                                                                        padx=30,
                                                                                                        pady=30)
-        self.btn2 = Button(self, text="Delete canvas",
-                           width=20, command=lambda: self.delete_canvas).grid(row=1,
-                                                                              column=0,
-                                                                              padx=30,
-                                                                              pady=30)
         self.btn3 = Button(self, text="View Money Paid ",
-                           width=20, command=lambda: self.view_money_paid(self.btn_frame)).grid(row=2,
+                           width=20, command=lambda: self.view_money_paid()).grid(row=1,
                                                                                                 column=0,
                                                                                                 padx=30,
                                                                                                 pady=30)
 
-    def view_water_consumption(self, fm3):
+    def view_water_consumption(self):
+        self.delete_canvas()
         customer_month = []
         water_amounts, months = self.db.total_amount_of_water_by_year(customer_id=self.var1)
         for month in months:
@@ -67,20 +65,22 @@ class LeftFrame(tk.Frame):
                 customer_month.append("November")
             elif (month[5:7] == "12"):
                 customer_month.append("December")
-        fig2 = plt.figure(figsize=(6, 6), dpi=80, tight_layout={'pad': 1})
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.btn_frame)
         plt.bar(customer_month, water_amounts, color='maroon',
                 width=0.5)
         plt.xlabel("Month")
         plt.ylabel("Water amount")
         plt.title("Water consumption in 2021")
-        self.canvasinter = FigureCanvasTkAgg(fig2, master=fm3)
-        self.canvasinter.draw()
-        self.canvasinter.get_tk_widget().grid(row=0, column=0, padx=50, pady=50)
+
+        self.canvas.draw()
+        self.canvas.get_tk_widget().grid(row=0, column=0, padx=50, pady=50)
 
     def delete_canvas(self):
-        self.canvasinter.delete("all")
+        self.canvas.get_tk_widget().destroy()
+        # self.canvas.get_tk_widget().grid_forget()
 
-    def view_money_paid(self, fm3):
+    def view_money_paid(self):
+        self.delete_canvas()
         customer_month = []
         amount_of_money, months = self.db.total_amount_of_money_by_year(customer_id=self.var1)
         for month in months:
@@ -109,15 +109,16 @@ class LeftFrame(tk.Frame):
                 customer_month.append("November")
             elif (month[5:7] == "12"):
                 customer_month.append("December")
-        fig2 = plt.figure(figsize=(6, 6), dpi=80, tight_layout={'pad': 1})
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.btn_frame)
         plt.bar(customer_month, amount_of_money, color='maroon',
                 width=0.5)
         plt.xlabel("Month")
         plt.ylabel("Money spent")
         plt.title("Money spent in water in 2021")
-        self.canvasinter = FigureCanvasTkAgg(fig2, master=fm3)
-        self.canvasinter.draw()
-        self.canvasinter.get_tk_widget().grid(row=0, column=0, padx=50, pady=50)
+
+        # self.canvasinter = FigureCanvasTkAgg(self.fig, master=fm3)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().grid(row=0, column=0, padx=50, pady=50)
 
 
 class RightFrame(tk.Frame):
@@ -125,4 +126,4 @@ class RightFrame(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.config(bd=3, bg="#000000", relief=RIDGE)
+        self.config(bd=3, bg="#ffffff", relief=RIDGE)
