@@ -237,43 +237,43 @@ class MainApp():
         # LEFT FRAME
         left_frame = Frame(self.master, bg='#1184e8')
         left_frame.place(x=0, y=110, width=430, height=690)
-        left_title = Label(left_frame, text="Manage Customers", font=("times new roman", 20, "bold"), bg="royal blue",
+        left_title = Label(left_frame, text="Manage Customers", font=("times new roman", 20, "bold"), bg="#1184e8",
                            fg="white")
         left_title.grid(row=0, columnspan=2, pady=20)
 
-        left_roll = Label(left_frame, text="Customer Id.", font=("times new roman", 20, "bold"), bg="royal blue",
+        left_roll = Label(left_frame, text="Customer Id.", font=("times new roman", 20, "bold"), bg="#1184e8",
                           fg="white").grid(row=1, column=0, padx=10, pady=10, sticky="w")
         roll_text = Entry(left_frame, textvariable=self.roll, font=("times new roman", 15, "bold"), bd=5,
                           relief=GROOVE).grid(row=1, column=1, padx=00, pady=10, sticky="w")
 
-        left_name = Label(left_frame, text="Customer Name", font=("times new roman", 20, "bold"), bg="royal blue",
+        left_name = Label(left_frame, text="Customer Name", font=("times new roman", 20, "bold"), bg="#1184e8",
                           fg="white").grid(row=2, column=0, padx=10, pady=10, sticky="w")
         name_text = Entry(left_frame, textvariable=self.name, font=("times new roman", 15, "bold"), bd=5,
                           relief=GROOVE).grid(row=2, column=1, padx=00, pady=10, sticky="w")
 
-        left_email = Label(left_frame, text="Area Id", font=("times new roman", 20, "bold"), bg="royal blue",
+        left_area = Label(left_frame, text="Area Id", font=("times new roman", 20, "bold"), bg="#1184e8",
                            fg="white").grid(row=3, column=0, padx=10, pady=10, sticky="w")
-        email_text = Entry(left_frame, textvariable=self.email, font=("times new roman", 15, "bold"), bd=5,
+        area_id = Entry(left_frame, textvariable=self.email, font=("times new roman", 15, "bold"), bd=5,
                            relief=GROOVE).grid(row=3, column=1, padx=00, pady=10, sticky="w")
 
-        left_gender = Label(left_frame, text="Address", font=("times new roman", 20, "bold"), bg="royal blue",
+        left_address = Label(left_frame, text="Address", font=("times new roman", 20, "bold"), bg="#1184e8",
                             fg="white").grid(row=4, column=0, padx=10, pady=10, sticky="w")
-        combo_gender = ttk.Combobox(left_frame, textvariable=self.gender, font=("times new roman", 13),
+        address_text = ttk.Combobox(left_frame, textvariable=self.gender, font=("times new roman", 13),
                                     state="readonly")
-        left_contact = Label(left_frame, text="Phone", font=("times new roman", 20, "bold"), bg="royal blue",
+        left_phone = Label(left_frame, text="Phone", font=("times new roman", 20, "bold"), bg="#1184e8",
                              fg="white").grid(row=5, column=0, padx=10, pady=10, sticky="w")
-        contact_text = Entry(left_frame, textvariable=self.contact, font=("times new roman", 15, "bold"), bd=5,
+        phone_text = Entry(left_frame, textvariable=self.contact, font=("times new roman", 15, "bold"), bd=5,
                              relief=GROOVE).grid(row=5, column=1, padx=00, pady=10, sticky="w")
 
-        left_dob = Label(left_frame, text="Water Allowance", font=("times new roman", 20, "bold"), bg="royal blue",
+        left_dob = Label(left_frame, text="Water Allowance", font=("times new roman", 20, "bold"), bg="#1184e8",
                          fg="white").grid(row=6, column=0, padx=10, pady=10, sticky="w")
         dob_text = Entry(left_frame, textvariable=self.dob, font=("times new roman", 15, "bold"), bd=5,
                          relief=GROOVE).grid(row=6, column=1, padx=00, pady=10, sticky="w")
 
-        left_adress = Label(left_frame, text="Complain", font=("times new roman", 20, "bold"), bg="royal blue",
+        left_complain = Label(left_frame, text="Complain", font=("times new roman", 20, "bold"), bg="#1184e8",
                             fg="white").grid(row=7, column=0, padx=10, pady=10, sticky="w")
-        self.adress_text = Text(left_frame, width=25, height=5, font=("", 10), bd=5, relief=GROOVE)
-        self.adress_text.grid(row=7, column=1, padx=00, pady=10, sticky="w")
+        self.address_text = Text(left_frame, width=25, height=5, font=("", 10), bd=5, relief=GROOVE)
+        self.address_text.grid(row=7, column=1, padx=00, pady=10, sticky="w")
 
         # Button Frame
         btn_frame = Frame(self.master, bd=3, bg="royal blue", relief=RIDGE)
@@ -316,39 +316,39 @@ class MainApp():
 
         scrool_x = Scrollbar(table_frame, orient=HORIZONTAL)
         scrool_y = Scrollbar(table_frame, orient=VERTICAL)
-        self.student_Table = ttk.Treeview(table_frame,
-                                          columns=("roll", "name", "email", "gender", "contact", "dob", "address"),
+        self.customer_table = ttk.Treeview(table_frame,
+                                          columns=("cus_id", "name", "area", "address", "phone", "complain", "water_allowance"),
                                           xscrollcommand=scrool_x.set, yscrollcommand=scrool_y.set)
         scrool_x.pack(side=BOTTOM, fill=X)
         scrool_y.pack(side=RIGHT, fill=Y)
-        scrool_x.config(command=self.student_Table.xview)
-        scrool_y.config(command=self.student_Table.yview)
+        scrool_x.config(command=self.customer_table.xview)
+        scrool_y.config(command=self.customer_table.yview)
 
-        self.student_Table.heading("roll", text="CustomerId")
-        self.student_Table.heading("name", text="Name")
-        self.student_Table.heading("email", text="AreaId")
-        self.student_Table.heading("gender", text="Address")
-        self.student_Table.heading("contact", text="Phone")
-        self.student_Table.heading("dob", text="Complain")
-        self.student_Table.heading("address", text="WaterAllowance")
-        self.student_Table["show"] = "headings"
+        self.customer_table.heading("cus_id", text="CustomerId")
+        self.customer_table.heading("name", text="Name")
+        self.customer_table.heading("area", text="AreaId")
+        self.customer_table.heading("address", text="Address")
+        self.customer_table.heading("phone", text="Phone")
+        self.customer_table.heading("complain", text="Complain")
+        self.customer_table.heading("water_allowance", text="WaterAllowance")
+        self.customer_table["show"] = "headings"
 
-        self.student_Table.column("roll", width=100)
-        self.student_Table.column("name", width=100)
-        self.student_Table.column("email", width=100)
-        self.student_Table.column("gender", width=100)
-        self.student_Table.column("contact", width=100)
-        self.student_Table.column("dob", width=100)
-        self.student_Table.column("contact", width=100)
-        self.student_Table.column("address", width=160)
+        self.customer_table.column("cus_id", width=100)
+        self.customer_table.column("name", width=100)
+        self.customer_table.column("area", width=100)
+        self.customer_table.column("address", width=100)
+        self.customer_table.column("phone", width=100)
+        self.customer_table.column("complain", width=100)
+        self.customer_table.column("water_allowance", width=100)
+        # self.customer_table.column("address", width=160)
 
-        self.student_Table.pack(fill=BOTH, expand=1)
-        self.student_Table.bind("<ButtonRelease-1>", self.get_cursor)
+        self.customer_table.pack(fill=BOTH, expand=1)
+        self.customer_table.bind("<ButtonRelease-1>", self.get_cursor)
         self.fetch_data()
 
     def get_cursor(self, ev):
-        cursor_row = self.student_Table.focus()
-        contents = self.student_Table.item(cursor_row)
+        cursor_row = self.customer_table.focus()
+        contents = self.customer_table.item(cursor_row)
         row = contents["values"]
         self.roll.set(row[0]),
         self.name.set(row[1]),
@@ -363,18 +363,18 @@ class MainApp():
         self.results = database.search(str(self.search_by.get()), "1")
         print("TEST", self.results)
         if len(self.results) != 0:
-            self.student_Table.delete(*self.student_Table.get_children())
+            self.customer_table.delete(*self.customer_table.get_children())
             for self.row in self.results:
-                self.student_Table.insert("", END, values=self.row)
+                self.customer_table.insert("", END, values=self.row)
 
     def fetch_data(self):
         self.rows = database.select_customers()
         if len(self.rows) != 0:
-            self.student_Table.delete(*self.student_Table.get_children())
+            self.customer_table.delete(*self.customer_table.get_children())
             for self.row in self.rows:
-                self.student_Table.insert("", END, values=self.row)
+                self.customer_table.insert("", END, values=self.row)
 
-    def add_customers(self):
+    def add_customers(self, customer_id, name, area, address, phone, water_allowance):
         pass
 
     def update_customers(self):
