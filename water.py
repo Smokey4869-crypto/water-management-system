@@ -224,12 +224,12 @@ class MainApp():
 
     def move_to_customers(self):
         # ALL VARIABLES##
-        self.roll = StringVar()
+        self.cus_id = StringVar()
         self.name = StringVar()
-        self.email = StringVar()
-        self.gender = StringVar()
-        self.contact = StringVar()
-        self.dob = StringVar()
+        self.address = StringVar()
+        self.area = StringVar()
+        self.phone = StringVar()
+        self.water_allowance = StringVar()
 
         self.search_by = StringVar()
         self.search_txt = StringVar()
@@ -241,9 +241,9 @@ class MainApp():
                            fg="white")
         left_title.grid(row=0, columnspan=2, pady=20)
 
-        left_roll = Label(left_frame, text="Customer Id.", font=("times new roman", 20, "bold"), bg="#1184e8",
+        left_cus_id = Label(left_frame, text="Customer Id.", font=("times new roman", 20, "bold"), bg="#1184e8",
                           fg="white").grid(row=1, column=0, padx=10, pady=10, sticky="w")
-        roll_text = Entry(left_frame, textvariable=self.roll, font=("times new roman", 15, "bold"), bd=5,
+        cus_id = Entry(left_frame, textvariable=self.cus_id, font=("times new roman", 15, "bold"), bd=5,
                           relief=GROOVE).grid(row=1, column=1, padx=00, pady=10, sticky="w")
 
         left_name = Label(left_frame, text="Customer Name", font=("times new roman", 20, "bold"), bg="#1184e8",
@@ -253,21 +253,21 @@ class MainApp():
 
         left_area = Label(left_frame, text="Area Id", font=("times new roman", 20, "bold"), bg="#1184e8",
                            fg="white").grid(row=3, column=0, padx=10, pady=10, sticky="w")
-        area_id = Entry(left_frame, textvariable=self.email, font=("times new roman", 15, "bold"), bd=5,
+        area_id = Entry(left_frame, textvariable=self.area, font=("times new roman", 15, "bold"), bd=5,
                            relief=GROOVE).grid(row=3, column=1, padx=00, pady=10, sticky="w")
 
         left_address = Label(left_frame, text="Address", font=("times new roman", 20, "bold"), bg="#1184e8",
                             fg="white").grid(row=4, column=0, padx=10, pady=10, sticky="w")
-        address_text = ttk.Combobox(left_frame, textvariable=self.gender, font=("times new roman", 13),
+        address_text = ttk.Combobox(left_frame, textvariable=self.address, font=("times new roman", 13),
                                     state="readonly")
         left_phone = Label(left_frame, text="Phone", font=("times new roman", 20, "bold"), bg="#1184e8",
                              fg="white").grid(row=5, column=0, padx=10, pady=10, sticky="w")
-        phone_text = Entry(left_frame, textvariable=self.contact, font=("times new roman", 15, "bold"), bd=5,
+        phone_text = Entry(left_frame, textvariable=self.phone, font=("times new roman", 15, "bold"), bd=5,
                              relief=GROOVE).grid(row=5, column=1, padx=00, pady=10, sticky="w")
 
-        left_dob = Label(left_frame, text="Water Allowance", font=("times new roman", 20, "bold"), bg="#1184e8",
+        left_water_allowance = Label(left_frame, text="Water Allowance", font=("times new roman", 20, "bold"), bg="#1184e8",
                          fg="white").grid(row=6, column=0, padx=10, pady=10, sticky="w")
-        dob_text = Entry(left_frame, textvariable=self.dob, font=("times new roman", 15, "bold"), bd=5,
+        water_allowance_text = Entry(left_frame, textvariable=self.water_allowance, font=("times new roman", 15, "bold"), bd=5,
                          relief=GROOVE).grid(row=6, column=1, padx=00, pady=10, sticky="w")
 
         left_complain = Label(left_frame, text="Complain", font=("times new roman", 20, "bold"), bg="#1184e8",
@@ -350,12 +350,12 @@ class MainApp():
         cursor_row = self.customer_table.focus()
         contents = self.customer_table.item(cursor_row)
         row = contents["values"]
-        self.roll.set(row[0]),
+        self.cus_id.set(row[0]),
         self.name.set(row[1]),
-        self.email.set(row[2]),
-        self.gender.set(row[3]),
-        self.contact.set(row[4]),
-        self.dob.set(row[5]),
+        self.area.set(row[2]),
+        self.address.set(row[3]),
+        self.phone.set(row[4]),
+        self.complain.set(row[5]),
         self.adress_text.delete("1.0", END),
         self.adress_text.insert(END, row[6])
 
