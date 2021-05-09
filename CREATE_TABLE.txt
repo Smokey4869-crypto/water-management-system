@@ -1,0 +1,75 @@
+CREATE TABLE "employeelogin" (
+	employee_id	varchar(10) UNIQUE,
+	password	varchar(10) NOT NULL,
+	FOREIGN KEY("employee_id") REFERENCES "employee"("employee_id"),
+	PRIMARY KEY(employee_id)
+)
+
+CREATE TABLE "employee" (
+	"employee_id"	varchar(10) NOT NULL,
+	"name"	varchar(30) NOT NULL,
+	"phone"	varchar(10) NOT NULL,
+	"sex"	varchar(1) NOT NULL,
+	"designation"	varchar(20) NOT NULL,
+	"salary"	number(10) NOT NULL,
+	PRIMARY KEY("employee_id")
+)
+
+CREATE TABLE "supplier" (
+	"supplier_id"	INTEGER NOT NULL,
+	"supplier_name"	varchar(30) NOT NULL,
+	"phone"	varchar(10) NOT NULL,
+	PRIMARY KEY("supplier_id" AUTOINCREMENT)
+)
+
+
+CREATE TABLE "area" (
+	"area_id"	INTEGER NOT NULL,
+	"areaname"	varchar(30) NOT NULL,
+	"employee_id" varchar(10) NOT NULL,
+	"supplier_id" INTEGER NOT NULL,
+	FOREIGN KEY("employee_id") REFERENCES "employee"("employee_id"),
+	FOREIGN KEY("supplier_id") REFERENCES "supplier"("supplier_id"),
+	PRIMARY KEY("area_id" AUTOINCREMENT)
+)
+
+
+CREATE TABLE "service" (
+	"service_id"	INTEGER NOT NULL,
+	"household_id"	INTEGER NOT NULL,
+	"service_type"	varchar(20) NOT NULL,
+	"service_request"	varchar(1000) NOT NULL,
+	"service_status"	varchar(10),
+	"date"	date,
+	PRIMARY KEY("service_id" AUTOINCREMENT),
+	FOREIGN KEY("household_id") REFERENCES "household"("household_id")
+)
+
+CREATE TABLE "household" (
+	"household_id"	INTEGER NOT NULL,
+	"household_owner"	varchar(30) NOT NULL,
+	"area_id"	INTEGER NOT NULL,
+	"address"	varchar(200) NOT NULL,
+	"phone"	varchar(10) NOT NULL,
+	FOREIGN KEY("area_id") REFERENCES "area"("area_id"),
+	PRIMARY KEY("household_id" AUTOINCREMENT)
+)
+
+CREATE TABLE "billing" (
+	"billing_id"	INTEGER,
+	"household_id"	INTEGER,
+	"water_consumption"	number(10),
+	"from_date"	date,
+	"to_date"	date,
+	"total_money"	number(12),
+	"is_paid" number(1),
+	FOREIGN KEY("household_id") REFERENCES "household"("household_id"),
+	PRIMARY KEY("billing_id"AUTOINCREMENT)
+)
+
+CREATE TABLE "householdlogin" (
+	household_id INTEGER NOT NULL,
+	password	varchar(10) NOT NULL,
+	FOREIGN KEY("household_id") REFERENCES "household"("household_id"),
+	PRIMARY KEY("household_id")
+)
