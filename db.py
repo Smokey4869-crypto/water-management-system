@@ -27,14 +27,14 @@ class Database:
         self.cursorObj.executemany("INSERT INTO billing VALUES(?,?,?,?,?)", self.data)
         self.db.commit()
 
-    def browse_table(self, table_name):
-        self.cursorObj.execute("SELECT * FROM %s ORDER BY 1 ASC;" % table_name)
-        colnames = [desc[0] for desc in self.cursorObj.description]
-        results = self.cursorObj.fetchall()
-        rows = []
-        for result in results:
-            rows.append(list(result))
-        return colnames, rows
+    # def browse_table(self, table_name):
+    #     self.cursorObj.execute("SELECT * FROM %s ORDER BY 1 ASC;" % table_name)
+    #     colnames = [desc[0] for desc in self.cursorObj.description]
+    #     results = self.cursorObj.fetchall()
+    #     rows = []
+    #     for result in results:
+    #         rows.append(list(result))
+    #     return colnames, rows
 
     def get_col_type(self, table_name):
         query = "pragma table_info({})".format(table_name)
@@ -59,9 +59,10 @@ class Database:
         self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", data)
         self.db.commit()
 
-    def update_area(self, id):
-        self.data = (12, id)
-        self.cursorObj.execute('UPDATE area SET empid = ? where areaid = ?', self.data)
+    def update_area(self, change, condition):
+        # change and condition in the form of a list
+        # ex : change: [ empid, 12 ], condition: [areaid, 21]
+        self.cursorObj.execute(f'UPDATE area SET {change[0]} = {change[1]} where {condition[0]} = {condition[1]}')
         self.db.commit()
 
     def join_billing_and_customer(self):
