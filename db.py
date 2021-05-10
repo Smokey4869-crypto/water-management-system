@@ -21,7 +21,6 @@ class Database:
         return results
 
     def insert(self, info):
-        # information should be in form of tuple (Tran Hong Quan, 21)
         self.values = 800
         self.data = [(11, self.values, datetime.date(2017, 1, 2), datetime.date(2017, 3, 2), self.values * 20)]
         self.cursorObj.executemany("INSERT INTO billing VALUES(?,?,?,?,?)", self.data)
@@ -35,6 +34,11 @@ class Database:
     #     for result in results:
     #         rows.append(list(result))
     #     return colnames, rows
+
+    def insert_gui(self, table, data):
+        # data in the form of tuple
+        self.cursorObj.execute(f"INSERT INTO {table} VALUES {data}")
+        self.db.commit()
 
     def get_col_type(self, table_name):
         query = "pragma table_info({})".format(table_name)
@@ -54,10 +58,10 @@ class Database:
         self.cursorObj.execute(self.sql, (id))
         self.db.commit()
 
-    def insert_area(self, area_id, name, emp_id):
-        data = [(int(area_id), name, int(emp_id))]
-        self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", data)
-        self.db.commit()
+    # def insert_area(self, area_id, name, emp_id):
+    #     data = [(int(area_id), name, int(emp_id))]
+    #     self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", data)
+    #     self.db.commit()
 
     def update_area(self, change, condition):
         # change and condition in the form of a list
@@ -196,7 +200,7 @@ class Database:
         for result in results:
             labels.append(result[0])
             water_amount.append(result[1])
-        return labels,water_amount
+        return labels, water_amount
 
 
 def main():
