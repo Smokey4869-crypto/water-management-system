@@ -15,14 +15,13 @@ class Database:
         return results
 
     def check_user_admin(self, username, password):
-        self.cursorObj.execute(
-            "SELECT * FROM adminlogin WHERE username='" + username + "' and password='" + password + "'")
-
+        self.cursorObj.execute("SELECT * FROM adminlogin WHERE username='" + username + "' and password='" + password + "'")
         results = self.cursorObj.fetchone()
         self.db.commit()
         return results
 
-    def insert(self):
+    def insert(self, info):
+        # information should be in form of tuple (Tran Hong Quan, 21)
         self.values = 800
         self.data = [(11, self.values, datetime.date(2017, 1, 2), datetime.date(2017, 3, 2), self.values * 20)]
         self.cursorObj.executemany("INSERT INTO billing VALUES(?,?,?,?,?)", self.data)
@@ -45,13 +44,8 @@ class Database:
             rows.append(result[2])
         return rows
 
-    def select_customers(self):
-        self.cursorObj.execute("SELECT * FROM customers")
-        rows = self.cursorObj.fetchall()
-        return rows
-
-    def select_employee(self):
-        self.cursorObj.execute("SELECT * FROM employee")
+    def show_table(self, table):
+        self.cursorObj.execute(f"SELECT * FROM {table}")
         rows = self.cursorObj.fetchall()
         return rows
 
@@ -60,18 +54,14 @@ class Database:
         self.cursorObj.execute(self.sql, (id))
         self.db.commit()
 
-    def insert_area(self):
-        areaid = int(input("Enter area id"))
-        areaname = input("enter area name")
-        empid = int(input("Enter emp id"))
-        self.data = [(areaid, areaname, empid)]
-        self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", self.data)
+    def insert_area(self, area_id, name, emp_id):
+        data = [(int(area_id), name, int(emp_id))]
+        self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", data)
         self.db.commit()
 
     def update_area(self, id):
-        self.sql_update_query = 'UPDATE area SET empid = ? where areaid = ?'
         self.data = (12, id)
-        self.cursorObj.execute(self.sql_update_query, self.data)
+        self.cursorObj.execute('UPDATE area SET empid = ? where areaid = ?', self.data)
         self.db.commit()
 
     def join_billing_and_customer(self):
@@ -108,8 +98,8 @@ class Database:
         print(self.result)
 
     def list_tables(self):
-        self.result = self.cursorObj.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
-        return self.result[1:len(self.result)]
+        result = self.cursorObj.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+        return result[1:len(self.result)]
 
     def add_row(self, table_name, columns, new_values):
         query_string = "INSERT INTO %s (" % table_name
