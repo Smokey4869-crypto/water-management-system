@@ -140,6 +140,12 @@ class MainApp():
             self.bt9 = ttk.Button(self.fm3, text="ram", bg='#11d09a', font=('Arial', 15, 'bold'))
             self.bt9.place(x=40, y=350)
 
+
+    def login(self):
+        user_name = self.e1.get()
+        password = self.e2.get()
+        if 
+
     def login(self):
         self.var1 = self.e1.get()
         self.var2 = self.e2.get()
