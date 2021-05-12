@@ -243,10 +243,11 @@ class Database:
     #         water_amount.append(result[1])
     #     return labels, water_amount
 
-    def water_consumed_in_year(self):
+    def water_consumed(self):
         try:
             result = []
-            for row in self.cursorObj.execute("SELECT household_id, SUM(water_consumption) FROM billing GROUP BY household_id"):
+            command = "SELECT household_id, SUM(water_consumption) FROM billing GROUP BY household_id"
+            for row in self.cursorObj.execute(command):
                 result.append(row)
             return result
         except Error as e:
@@ -260,7 +261,7 @@ def main():
     # err = db.search("household", "hello", "10")
     # print(err)
     db.list_tables()
-    db.water_consumed_in_year()
+    db.water_consumed()
 
 
 if __name__ == '__main__':
