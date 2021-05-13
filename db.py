@@ -243,10 +243,13 @@ class Database:
     #         water_amount.append(result[1])
     #     return labels, water_amount
 
-    def water_consumed(self):
+    def water_consumed(self, year):
         try:
             result = []
-            command = "SELECT household_id, SUM(water_consumption) FROM billing GROUP BY household_id"
+            command = f"SELECT household_id, SUM(water_consumption) " \
+                      f"FROM billing " \
+                      f"WHERE to_date LIKE \"%{year}%\" " \
+                      f"GROUP BY household_id"
             for row in self.cursorObj.execute(command):
                 result.append(row)
             return result
