@@ -8,6 +8,15 @@ class Database:
         self.db = sqlite3.connect(filename)
         self.cursorObj = self.db.cursor()
 
+    def login(self, username, password):
+        try:
+            self.cursorObj.execute(f"SELECT * FROM adminlogin WHERE username= '{username}' and password='{password}'")
+            results = self.cursorObj.fetchone()
+            self.db.commit()
+            return results
+        except Error as e:
+            return e
+
     def search(self, table, search_by, search_txt):
         try:
             self.cursorObj.execute(f"SELECT * FROM {table} WHERE {search_by} LIKE '%{search_txt}%'")
@@ -16,12 +25,11 @@ class Database:
         except Error as e:
             return e
 
-    def login(self, username, password):
+    def search_exact(self, table, search_by, search_txt):
         try:
-            self.cursorObj.execute(f"SELECT * FROM adminlogin WHERE username= '{username}' and password='{password}'")
-            results = self.cursorObj.fetchone()
+            self.cursorObj.execute(f"SELECT * FROM {table} WHERE {search_by} LIKE '{search_txt}'")
             self.db.commit()
-            return results
+            return list(self.cursorObj.fetchall())
         except Error as e:
             return e
 
@@ -57,6 +65,11 @@ class Database:
             rows.append(result[2])
         return rows
 
+    def get_col(self, table_name):
+        self.cursorObj.execute('SELECT * FROM {}'.format(table_name))
+        names = list(map(lambda x: x[0], self.cursorObj.description))
+        return names
+
     def show_table(self, table):
         try:
             self.cursorObj.execute(f"SELECT * FROM {table}")
@@ -87,6 +100,7 @@ class Database:
         try:
             self.cursorObj.execute(f'UPDATE {table} SET {change[0]} = {change[1]} where {condition[0]} = {condition[1]}')
             self.db.commit()
+            print('Done')
         except Error as e:
             return e
 
@@ -107,7 +121,6 @@ class Database:
         print(sql)
         self.cursorObj.execute(sql)
         self.cursorObj.fetchall()
-
 
     # def join_area_and_employee(self):
     #     self.sql = '''SELECT name,phone,sex,designation,salary,areaname from employee JOIN area ON employee.empid = area.empid'''
@@ -159,14 +172,10 @@ class Database:
     #     self.cursorObj.execute(query_string, data)
     #     self.db.commit()
 
-    def delete_row(self, table_name, columns, values):
-        query_string = '('
-        for x in range(0, len(columns)):
-            query_string += (columns[x] + " = '" + str(values[x]) + "' AND ")
-        query_string = "DELETE FROM %s WHERE " % table_name + query_string[:-5] + ');'  # debug
-        self.cursorObj.execute(query_string)
+    def delete_row(self, table_name, id):
+        columns = self.get_col(table_name)
+        self.cursorObj.execute(f"DELETE FROM {table_name} WHERE {columns[0]} LIKE '{id}'")
         self.db.commit()
-
     # def select_table_by_id(self, table_name, id):
     #     self.cursorObj.execute("SELECT * FROM %s WHERE id=%d;" % (table_name, id))
     #     results = self.cursorObj.fetchall()
@@ -260,8 +269,9 @@ def main():
     # db.total_amount_of_water_by_area()
     # err = db.search("household", "hello", "10")
     # print(err)
-    db.list_tables()
-    db.water_consumed()
+    # db.update_value('supplier', ['supplier_name', 'CompFive'], ['supplier_id', '5'])
+    # db.delete_row('supplier', 'supplier_id', [13, 12])
+    # print(db.get_col_type('billing'))
 
 
 if __name__ == '__main__':
