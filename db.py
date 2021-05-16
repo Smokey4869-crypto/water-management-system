@@ -252,7 +252,7 @@ class Database:
     #         water_amount.append(result[1])
     #     return labels, water_amount
 
-    def water_consumed(self, year):
+    def water_consumed_by_household(self, year):
         try:
             result = []
             command = f"SELECT household_id, SUM(water_consumption) " \
@@ -264,6 +264,48 @@ class Database:
             return result
         except Error as e:
             return e
+
+    # def water_consumed_by_area(self, areas):
+    #     try:
+    #         result = []
+    #         for area in areas:
+    #             command = f"""SELECT sum(water_consumption)
+    #                       FROM billing
+    #                       INNER JOIN household
+    #                       ON household.household_id = billing.household_id
+    #                       INNER JOIN area
+    #                       ON area.area_id = household.area_id
+    #                       WHERE area.area_id = {area}
+    #                       GROUP by area.area_id
+    #                       """
+    #             for item in self.cursorObj.execute(command):
+    #                 result.append(item[0])
+    #         return result
+    #     except Error as e:
+    #         return e
+
+    def water_consumed_by_suppliers_and_areas(self, conditions):
+        # db.water_consumed_by_suppliers_and_areas([{'supplier_id': [1, 2]}])
+        try:
+            result = []
+            for condition in conditions:
+                for key, values in condition.items():
+                    for value in values:
+                        command = f"""SELECT sum(water_consumption)
+                                  FROM billing 
+                                  INNER JOIN household 
+                                  ON household.household_id = billing.household_id 
+                                  INNER JOIN area
+                                  ON area.area_id = household.area_id 
+                                  WHERE area.{key} = {value}
+                                  GROUP by area.{key}
+                                  """
+                        for item in self.cursorObj.execute(command):
+                            result.append(item[0])
+            print(result)
+        except Error as e:
+            return e
+
 
     # Employee
     #
@@ -311,6 +353,7 @@ class Database:
     #         print(e)
 
     def num_of_value(self, table, conditions):
+        # db.num_of_value("employee", [{'sex': "M"}])
         try:
             result = []
             for condition in conditions:
@@ -322,15 +365,6 @@ class Database:
             return result
         except Error as e:
             return e
-
-    # Billing
-    def amount_of_water_of_condition(self, conditions):
-        # conditions in the form of [suppliers : [1,2]]
-        for condition in conditions :
-            for key, value in condition.items():
-                print(key)
-                print(value)
-
 
 def main():
     db = Database(filename='my_water.db')
