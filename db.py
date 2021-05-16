@@ -265,6 +265,72 @@ class Database:
         except Error as e:
             return e
 
+    # Employee
+    #
+    # def num_emp_gender(self, gender='M'):
+    #     try:
+    #         command = f"SELECT SUM(CASE WHEN sex = \'{gender}\' THEN 1 ELSE 0 END) FROM employee"
+    #         for row in self.cursorObj.execute(command):
+    #             result = row[0]
+    #         return result
+    #     except Error as e:
+    #         return e
+    #
+    # def num_emp_role(self, role='analyst'):
+    #     try:
+    #         command = f"SELECT SUM(CASE WHEN designation = \'{role}\' THEN 1 ELSE 0 END) FROM employee"
+    #         for row in self.cursorObj.execute(command):
+    #             result = row[0]
+    #         return result
+    #     except Error as e:
+    #         return e
+    #
+    # # Household
+    #
+    # def num_households_in_area(self, areas):
+    #     try:
+    #         result = []
+    #         for area in areas:
+    #             command = f"SELECT SUM(CASE WHEN area_id = \'{area}\' THEN 1 ELSE 0 END) FROM household"
+    #             for row in self.cursorObj.execute(command):
+    #                 result.append(row[0])
+    #         print(result)
+    #     except Error as e:
+    #         print(e)
+    #
+    # # Area
+    # def num_area_of_suppliers(self, suppliers):
+    #     try:
+    #         result = []
+    #         for supplier in suppliers:
+    #             command = f"SELECT SUM(CASE WHEN supplier_id = \'{supplier}\' THEN 1 ELSE 0 END) FROM area"
+    #             for row in self.cursorObj.execute(command):
+    #                 result.append(row[0])
+    #         print(result)
+    #     except Error as e:
+    #         print(e)
+
+    def num_of_value(self, table, conditions):
+        try:
+            result = []
+            for condition in conditions:
+                for key, values in condition.items():
+                    for value in values:
+                        command = f"SELECT SUM(CASE WHEN {key} = \'{value}\' THEN 1 ELSE 0 END) FROM {table}"
+                        for row in self.cursorObj.execute(command):
+                            result.append(row[0])
+            return result
+        except Error as e:
+            return e
+
+    # Billing
+    def amount_of_water_of_condition(self, conditions):
+        # conditions in the form of [suppliers : [1,2]]
+        for condition in conditions :
+            for key, value in condition.items():
+                print(key)
+                print(value)
+
 
 def main():
     db = Database(filename='my_water.db')
@@ -275,6 +341,12 @@ def main():
     # db.update_value('supplier', ['supplier_name', 'CompFive'], ['supplier_id', '5'])
     # db.delete_row('supplier', 'supplier_id', [13, 12])
     # print(db.get_col_type('billing'))
+    # db.num_emp_gender('F')
+    # db.num_emp_role()
+    # db.num_households_in_area([1, 2])
+    # db.amount_of_water_of_condition([{'suppliers': [1, 2]}])
+    # db.num_area_of_suppliers([1, 2])
+    db.num_of_value("employee", [{'sex': "M"}])
 
 
 if __name__ == '__main__':
