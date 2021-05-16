@@ -8,7 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from customers import window
 
-database = Database("my_water.db")
+database = Database("water.db")
 
 
 class Login:
