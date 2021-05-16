@@ -19,7 +19,7 @@ class Customers:
         self.root.iconbitmap('water.ico')
 
         # Connect database
-        self.database = sqlite3.connect('my_water.db')
+        self.database = sqlite3.connect('water.db')
         self.cursor = self.database.cursor()
 
         # Create a style for notebook
@@ -448,7 +448,7 @@ class Customers:
 
 def window(id):
     root = Tk()
-    database = sqlite3.connect('my_water.db')
+    database = sqlite3.connect('water.db')
     c = database.cursor()
     c.execute("SELECT * FROM household")
     data = c.fetchall()

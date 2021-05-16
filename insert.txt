@@ -173,16 +173,16 @@ INSERT INTO supplier VALUES(1,"Water Company 1","0809000000");
 INSERT INTO supplier VALUES(2,"Water Company 2","0809000001");
 INSERT INTO supplier VALUES(3,"Water Company 3","0809000002");
 
-INSERT INTO householdlogin VALUES(1,"123456");
-INSERT INTO householdlogin VALUES(2,"123456");
-INSERT INTO householdlogin VALUES(3,"123456");
-INSERT INTO householdlogin VALUES(4,"123456");
-INSERT INTO householdlogin VALUES(5,"123456");
-INSERT INTO householdlogin VALUES(6,"123456");
-INSERT INTO householdlogin VALUES(7,"123456");
-INSERT INTO householdlogin VALUES(8,"123456");
-INSERT INTO householdlogin VALUES(9,"123456");
-INSERT INTO householdlogin VALUES(10,"123456");
+INSERT INTO adminlogin VALUES(1,"123456");
+INSERT INTO adminlogin  VALUES(2,"123456");
+INSERT INTO adminlogin  VALUES(3,"123456");
+INSERT INTO adminlogin  VALUES(4,"123456");
+INSERT INTO adminlogin  VALUES(5,"123456");
+INSERT INTO adminlogin  VALUES(6,"123456");
+INSERT INTO adminlogin  VALUES(7,"123456");
+INSERT INTO adminlogin  VALUES(8,"123456");
+INSERT INTO adminlogin  VALUES(9,"123456");
+INSERT INTO adminlogin  VALUES(10,"123456");
 
 INSERT INTO employeelogin VALUES("emp1","123456");
 INSERT INTO employeelogin VALUES("emp2","123456");
