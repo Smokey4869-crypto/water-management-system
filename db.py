@@ -94,13 +94,14 @@ class Database:
     #     self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", data)
     #     self.db.commit()
 
-    def update_value(self, table, change, condition):
+    def update_value(self, table, changes, condition):
         # change and condition in the form of a list
-        # ex : change: [ empid, 12 ], condition: [areaid, 21]
+        # ex : change: [ {emp_id : 12}, {he: afahfk}], condition: [area_id, 21]
         try:
-            self.cursorObj.execute(f'UPDATE {table} SET {change[0]} = {change[1]} where {condition[0]} = {condition[1]}')
-            self.db.commit()
-            print('Done')
+            for change in changes:
+                for key, value in change.items():
+                    self.cursorObj.execute(f'UPDATE {table} SET {key} = {value} where {condition[0]} = {condition[1]}')
+                    self.db.commit()
         except Error as e:
             return e
 
