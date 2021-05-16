@@ -96,7 +96,7 @@ class Database:
 
     def update_value(self, table, changes, condition):
         # change and condition in the form of a list
-        # ex : change: [ {emp_id : 12}, {he: afahfk}], condition: [area_id, 21]
+        # ex : change: [ {emp_id: 1}, {hel: 2}], condition: [area_id, 21]
         try:
             for change in changes:
                 for key, value in change.items():
@@ -253,15 +253,137 @@ class Database:
     #         water_amount.append(result[1])
     #     return labels, water_amount
 
-    def water_consumed(self, year):
+    def value_consumed_by_household(self, type="water_consumption", year="", month=""):
         try:
             result = []
-            command = f"SELECT household_id, SUM(water_consumption) " \
-                      f"FROM billing " \
-                      f"WHERE to_date LIKE \"%{year}%\" " \
-                      f"GROUP BY household_id"
+            command = f"""SELECT household_id, SUM({type}) 
+                          FROM billing """
+
+            condition = ""
+            if year:
+                condition = f" WHERE to_date LIKE \'%{year}"
+
+                if month:
+                    condition += f"-{month}%\'"
+                else:
+                    condition += f"%\'"
+
+            command += condition + " GROUP BY household_id"
+
             for row in self.cursorObj.execute(command):
                 result.append(row)
+
+            return result
+        except Error as e:
+            return e
+
+        # Employee
+        #
+        # def num_emp_gender(self, gender='M'):
+        #     try:
+        #         command = f"SELECT SUM(CASE WHEN sex = \'{gender}\' THEN 1 ELSE 0 END) FROM employee"
+        #         for row in self.cursorObj.execute(command):
+        #             result = row[0]
+        #         return result
+        #     except Error as e:
+        #         return e
+        #
+        # def num_emp_role(self, role='analyst'):
+        #     try:
+        #         command = f"SELECT SUM(CASE WHEN designation = \'{role}\' THEN 1 ELSE 0 END) FROM employee"
+        #         for row in self.cursorObj.execute(command):
+        #             result = row[0]
+        #         return result
+        #     except Error as e:
+        #         return e
+        #
+        # # Household
+        #
+        # def num_households_in_area(self, areas):
+        #     try:
+        #         result = []
+        #         for area in areas:
+        #             command = f"SELECT SUM(CASE WHEN area_id = \'{area}\' THEN 1 ELSE 0 END) FROM household"
+        #             for row in self.cursorObj.execute(command):
+        #                 result.append(row[0])
+        #         print(result)
+        #     except Error as e:
+        #         print(e)
+        #
+        # # Area
+        # def num_area_of_suppliers(self, suppliers):
+        #     try:
+        #         result = []
+        #         for supplier in suppliers:
+        #             command = f"SELECT SUM(CASE WHEN supplier_id = \'{supplier}\' THEN 1 ELSE 0 END) FROM area"
+        #             for row in self.cursorObj.execute(command):
+        #                 result.append(row[0])
+        #         print(result)
+        #     except Error as e:
+        #         print(e)
+
+    def num_of_value(self, table, conditions):
+        try:
+            result = []
+            for condition in conditions:
+                for key, values in condition.items():
+                    for value in values:
+                        command = f"SELECT SUM(CASE WHEN {key} = \'{value}\' THEN 1 ELSE 0 END) FROM {table}"
+                        for row in self.cursorObj.execute(command):
+                            result.append(row[0])
+            return result
+        except Error as e:
+            return e
+
+        # Billing
+
+    # def water_consumed_by_area(self, areas):
+    #     try:
+    #         result = []
+    #         for area in areas:
+    #             command = f"""SELECT sum(water_consumption)
+    #                       FROM billing
+    #                       INNER JOIN household
+    #                       ON household.household_id = billing.household_id
+    #                       INNER JOIN area
+    #                       ON area.area_id = household.area_id
+    #                       WHERE area.area_id = {area}
+    #                       GROUP by area.area_id
+    #                       """
+    #             for item in self.cursorObj.execute(command):
+    #                 result.append(item[0])
+    #         return result
+    #     except Error as e:
+    #         return e
+
+    def value_consumed_by_suppliers_or_areas(self, ids, type="water_consumption", year="", month=""):
+        # db.value_consumed_by_suppliers_or_areas([{'supplier_id': [1, 2]}], "total_money")
+        try:
+            result = []
+            for id in ids:
+                for key, values in id.items():
+                    for value in values:
+                        command = f"""SELECT area.{key}, sum({type})
+                                    FROM billing 
+                                    INNER JOIN household 
+                                    ON household.household_id = billing.household_id 
+                                    INNER JOIN area
+                                    ON area.area_id = household.area_id 
+                                    """
+                        condition = f"WHERE area.{key} = '{value}'"
+
+                        if year:
+                            condition += f" AND to_date LIKE \'%{year}"
+
+                            if month:
+                                condition += f"-{month}%\'"
+                            else:
+                                condition += "%\'"
+
+                        command += condition + f" GROUP BY area.{key}"
+
+                        for item in self.cursorObj.execute(command):
+                            result.append(item)
             return result
         except Error as e:
             return e
@@ -276,6 +398,8 @@ def main():
     # db.update_value('supplier', ['supplier_name', 'CompFive'], ['supplier_id', '5'])
     # db.delete_row('supplier', 'supplier_id', [13, 12])
     # print(db.get_col_type('billing'))
+    db.value_consumed_by_suppliers_or_areas([{'supplier_id': [1, 2]}], "total_money")
+    db.value_consumed_by_household()
 
 
 if __name__ == '__main__':
