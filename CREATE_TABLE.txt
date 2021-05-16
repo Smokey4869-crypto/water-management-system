@@ -12,6 +12,8 @@ CREATE TABLE "employee" (
 	"sex"	varchar(1) NOT NULL,
 	"designation"	varchar(20) NOT NULL,
 	"salary"	number(10) NOT NULL,
+	"area_id" INTEGER ,
+	FOREIGN KEY("area_id") REFERENCES "area"("area_id") ON DELETE SET NULL,
 	PRIMARY KEY("employee_id")
 )
 
@@ -26,10 +28,8 @@ CREATE TABLE "supplier" (
 CREATE TABLE "area" (
 	"area_id"	INTEGER NOT NULL,
 	"areaname"	varchar(30) NOT NULL,
-	"employee_id" varchar(10) NOT NULL,
 	"supplier_id" INTEGER NOT NULL,
-	FOREIGN KEY("employee_id") REFERENCES "employee"("employee_id"),
-	FOREIGN KEY("supplier_id") REFERENCES "supplier"("supplier_id"),
+	FOREIGN KEY("supplier_id") REFERENCES "supplier"("supplier_id") ON DELETE SET NULL,
 	PRIMARY KEY("area_id" AUTOINCREMENT)
 )
 
@@ -42,16 +42,17 @@ CREATE TABLE "service" (
 	"service_status"	varchar(10),
 	"date"	date,
 	PRIMARY KEY("service_id" AUTOINCREMENT),
-	FOREIGN KEY("household_id") REFERENCES "household"("household_id")
+	FOREIGN KEY("household_id") REFERENCES "household"("household_id") ON DELETE SET NULL
 )
+
 
 CREATE TABLE "household" (
 	"household_id"	INTEGER NOT NULL,
 	"household_owner"	varchar(30) NOT NULL,
-	"area_id"	INTEGER NOT NULL,
+	"area_id"	INTEGER,
 	"address"	varchar(200) NOT NULL,
 	"phone"	varchar(10) NOT NULL,
-	FOREIGN KEY("area_id") REFERENCES "area"("area_id"),
+	FOREIGN KEY("area_id") REFERENCES "area"("area_id") ON DELETE SET NULL,
 	PRIMARY KEY("household_id" AUTOINCREMENT)
 )
 
@@ -63,7 +64,7 @@ CREATE TABLE "billing" (
 	"to_date"	date,
 	"total_money"	number(12),
 	"is_paid" number(1),
-	FOREIGN KEY("household_id") REFERENCES "household"("household_id"),
+	FOREIGN KEY("household_id") REFERENCES "household"("household_id") ON DELETE SET NULL,
 	PRIMARY KEY("billing_id"AUTOINCREMENT)
 )
 
@@ -73,3 +74,10 @@ CREATE TABLE "householdlogin" (
 	FOREIGN KEY("household_id") REFERENCES "household"("household_id"),
 	PRIMARY KEY("household_id")
 )
+
+
+
+
+
+household-areaid delete set null
+service-householdid delete set null
