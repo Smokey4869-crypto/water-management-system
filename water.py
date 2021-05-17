@@ -4,17 +4,32 @@ from tkinter import font as tkfont
 from db import Database
 from tkinter import ttk
 from tkinter import messagebox
+import matplotlib
+matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+
 from customers import window
 
 database = Database("water.db")
+
+
+def center_window(root, width, height):
+    positionRight = int(root.winfo_screenwidth()/2 - width/2)
+    positionDown = int(root.winfo_screenheight()/2 - height/2 - 60)
+
+    root.geometry("%dx%d+%d+%d" % (width, height, positionRight, positionDown))
 
 
 class Login:
     def __init__(self):
         self.login = Tk()
         self.login.title('Login')
+        self.lb_wel = Label(self.login, text='Welcome!')
+        self.lb_wel.pack(pady=5)
+        self.frame_login = LabelFrame(self.login, text="Login")
+        self.frame_login.pack()
+        center_window(self.login, 300, 180)
 
         def btn_login():
             result = database.login(en_username.get(), en_password.get())
@@ -25,18 +40,18 @@ class Login:
                 else:
                     window(int(result[0]))
 
-        lb_username = Label(self.login, text='Username')
+        lb_username = Label(self.frame_login, text='Username')
         lb_username.grid(row=0, column=0)
-        en_username = Entry(self.login)
+        en_username = Entry(self.frame_login)
         en_username.grid(row=0, column=1, columnspan=4)
 
-        lb_password = Label(self.login, text='Password')
+        lb_password = Label(self.frame_login, text='Password')
         lb_password.grid(row=1, column=0)
-        en_password = Entry(self.login)
+        en_password = Entry(self.frame_login)
         en_password.grid(row=1, column=1, columnspan=4)
 
-        btn_login = Button(self.login, text='Login', command=btn_login)
-        btn_login.grid(row=2, column=0, columnspan=5)
+        btn_login = Button(self.frame_login, text='Login', command=btn_login)
+        btn_login.grid(row=2, column=0, columnspan=5, pady=5)
 
         self.login.mainloop()
 
@@ -50,7 +65,7 @@ class WinAdd:
         self.entries = []
         self.win_add = Toplevel(self.root)
         self.win_add.title('Adding Things')
-        self.win_add.geometry('400x400')
+        center_window(self.win_add, 400, 400)
         self.frame_select = LabelFrame()
         self.frame_form = LabelFrame(self.win_add, text="Form")
         self.btn_sub = Button()
@@ -100,7 +115,7 @@ class WinUpdate:
         self.entries = []
         self.win_update = Toplevel(self.root)
         self.win_update.title('Update Things')
-        self.win_update.geometry('400x400')
+        center_window(self.win_update, 400, 400)
         self.frame_select = LabelFrame()
         self.frame_form = LabelFrame(self.win_update, text="Form")
         self.btn_sub = Button()
@@ -159,11 +174,248 @@ class WinDelete:
 
         response = messagebox.askquestion("Delete ?", "Do you want to delete ?")
         if response == 'yes':
-            # database.delete_row(table_name, row[0])
-            print("To be Deleted: ", table_name, row)
             database.delete_row(table_name, row[0])
 
         self.frame_table.redraw()
+
+
+class FrameSelectWinChart:
+    def __init__(self, root):
+        self.root = root
+        self.fr_select = LabelFrame()
+        self.cbx_values = []
+        self.lb_select = Label()
+        self.lb_type = Label()
+        self.btn_show = Button()
+        self.cbx_select = ttk.Combobox()
+        self.cbx_type = ttk.Combobox()
+        self.btn_done = Button()
+
+    def draw(self, fr_chart, cbx_values):
+        self.fr_select = LabelFrame(self.root, text="Selection")
+        self.fr_select.pack(fill=X, padx=10, pady=10)
+        self.cbx_values = cbx_values
+        self.lb_select = Label(self.fr_select, text="Get Info About")
+        self.lb_select.grid(row=0, column=0, padx=5, pady=5)
+        self.cbx_select = ttk.Combobox(self.fr_select, width=25, values=self.cbx_values)
+        self.cbx_select.grid(row=0, column=1, padx=5, pady=5, columnspan=2)
+        self.cbx_select.current(0)
+
+        self.lb_type = Label(self.fr_select, text="Type ")
+        self.lb_type.grid(row=1, column=0, padx=5, pady=5)
+        self.cbx_type = ttk.Combobox(self.fr_select, width=25, values=['gender', 'role'])
+        self.cbx_type.grid(row=1, column=1, padx=5, pady=5, columnspan=2)
+        self.cbx_type.current(0)
+
+        self.cbx_select.bind("<<ComboboxSelected>>", lambda _: self.change_cbx_type(self.cbx_select.get()))
+
+        self.btn_show = Button(self.fr_select, text="Show",
+                               command=lambda: fr_chart.draw([self.cbx_select.get(), self.cbx_type.get()]))
+        self.btn_show.grid(row=1, column=3, padx=5, pady=5)
+
+        self.btn_done = Button(self.fr_select, text="Done", command=self.done)
+        self.btn_done.grid(row=1, column=4, padx=5, pady=5)
+
+    def change_cbx_type(self, selection):
+        if selection == 'employee':
+            self.cbx_type['values'] = ['gender', 'role']
+        elif selection == 'household':
+            self.cbx_type['values'] = ['num in each area']
+        elif selection == 'area':
+            self.cbx_type['values'] = ['num of each supplier']
+        elif selection == 'service':
+            self.cbx_type['values'] = ['num of each supplier']
+        elif selection == 'billing':
+            self.cbx_type['values'] = ['amount of water in each area',
+                                       'amount of water of each supplier',
+                                       'amount of water of each household',
+                                       'amount of money in each area',
+                                       'amount of money of each supplier',
+                                       'amount of money of each household',
+                                       ]
+
+        self.cbx_type.current(0)
+
+    def done(self):
+        plt.close('all')
+        self.root.destroy()
+
+
+class FrameChartWinChart:
+    def __init__(self, root):
+        self.root = root
+        self.fr_chart = LabelFrame()
+        self.c_type = []
+
+    def draw(self, c_type):
+        self.fr_chart.destroy()
+        self.fr_chart = LabelFrame(self.root, text="Chart")
+        self.fr_chart.pack(fill=X, padx=10, pady=10)
+        self.c_type = c_type
+        if c_type[0] == 'employee':
+            if c_type[1] == 'gender':
+                self.draw_chart_emp_gender()
+            elif c_type[1] == 'role':
+                self.draw_chart_emp_role()
+        elif c_type[0] == 'household':
+            if c_type[1] == 'num in each area':
+                self.draw_chart_hh_in_area()
+        elif c_type[0] == 'area':
+            if c_type[1] == 'num of each supplier':
+                self.draw_chart_area_of_supplier()
+        elif c_type[0] == 'service':
+            if c_type[1] == 'num of each supplier':
+                self.draw_chart_ser_of_supplier()
+        elif c_type[0] == 'billing':
+            if c_type[1] == 'amount of water in each area':
+                self.draw_chart_bill_water_area()
+            elif c_type[1] == 'amount of water of each supplier':
+                self.draw_chart_bill_water_supplier()
+            elif c_type[1] == 'amount of water of each household':
+                self.draw_chart_bill_water_hh()
+            elif c_type[1] == 'amount of money in each area':
+                self.draw_chart_bill_money_area()
+            elif c_type[1] == 'amount of money of each supplier':
+                self.draw_chart_bill_money_supplier()
+            elif c_type[1] == 'amount of money of each household':
+                self.draw_chart_bill_money_hh()
+
+    def draw_chart_emp_gender(self):
+        f = plt.figure(figsize=(6, 6), dpi=100)
+        labels = ['F', 'M']
+        values = []
+        for label in labels:
+            values.append(database.num_emp_gender(label))
+
+        plt.bar(labels, values)
+        plt.title(self.c_type[1])
+
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_emp_role(self):
+        f = plt.figure(figsize=(6, 6), dpi=100)
+        labels = ['director', 'analyst']
+        values = []
+        for label in labels:
+            values.append(database.num_emp_role(label))
+
+        plt.bar(labels, values)
+        plt.title(self.c_type[1])
+
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_hh_in_area(self):
+        f = plt.figure(figsize=(20, 10), dpi=50)
+
+        ids = database.get_all_col_record_in_table('area', 0)
+        labels = database.get_all_col_record_in_table('area', 1)
+        values = database.num_households_in_area(ids)
+
+        plt.bar(labels, values)
+        plt.title(self.c_type[1])
+
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_area_of_supplier(self):
+        f = plt.figure(figsize=(20, 10), dpi=50)
+
+        ids = database.get_all_col_record_in_table('supplier', 0)
+        labels = database.get_all_col_record_in_table('supplier', 1)
+        values = database.num_area_of_suppliers(ids)
+
+        plt.bar(labels, values)
+        plt.title(self.c_type[1])
+
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_ser_of_supplier(self):
+        pass
+
+    def draw_chart_bill_water_area(self):
+        f = plt.figure(figsize=(20, 10), dpi=50)
+        supplier_ids = database.get_all_col_record_in_table('area', 0)
+        results = database.value_consumed_by_suppliers_or_areas([{'area_id': supplier_ids}], "water_consumption")
+        labels = database.get_all_col_record_in_table('area', 1)
+
+        values = []
+        for result in results:
+            values.append(result[1])
+
+        plt.bar(labels, values)
+        plt.title(self.c_type[1])
+
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_bill_water_supplier(self):
+        f = plt.figure(figsize=(20, 10), dpi=50)
+        supplier_ids = database.get_all_col_record_in_table('supplier', 0)
+        results = database.value_consumed_by_suppliers_or_areas([{'area_id': supplier_ids}], "water_consumption")
+        labels = database.get_all_col_record_in_table('supplier', 1)
+
+        values = []
+        for result in results:
+            values.append(result[1])
+
+        plt.bar(labels, values)
+        plt.title(self.c_type[1])
+
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_bill_water_hh(self):
+        pass
+
+    def draw_chart_bill_money_area(self):
+        f = plt.figure(figsize=(20, 10), dpi=50)
+        area_ids = database.get_all_col_record_in_table('area', 0)
+        results = database.value_consumed_by_suppliers_or_areas([{'area_id': area_ids}], "total_money")
+        labels = database.get_all_col_record_in_table('area', 1)
+
+        values = []
+        for result in results:
+            values.append(result[1])
+
+        plt.bar(labels, values)
+        plt.title(self.c_type[1])
+
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_bill_money_supplier(self):
+        f = plt.figure(figsize=(20, 10), dpi=50)
+        supplier_ids = database.get_all_col_record_in_table('supplier', 0)
+        results = database.value_consumed_by_suppliers_or_areas([{'area_id': supplier_ids}], "total_money")
+        labels = database.get_all_col_record_in_table('supplier', 1)
+
+        values = []
+        for result in results:
+            values.append(result[1])
+
+        plt.bar(labels, values)
+        plt.title(self.c_type[1])
+
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_bill_money_hh(self):
+        pass
+
+    def draw_chart_area(self):
+        lb = Label(self.fr_chart, text="Area Chart")
+        lb.pack()
 
 
 class WinCharts:
@@ -172,11 +424,18 @@ class WinCharts:
 
         self.win_charts = Toplevel(self.root)
         self.win_charts.title('Charts Things')
-        self.win_charts.geometry('400x400')
+        center_window(self.win_charts, 1000, 600)
+
+        self.fr_select = FrameSelectWinChart(self.win_charts)
+        self.fr_chart = FrameChartWinChart(self.win_charts)
 
     def draw(self):
-        lb = Label(self.win_charts, text="This is chart window")
-        lb.pack()
+        cbx_values = ['employee', 'household', 'area', 'service', 'billing']
+
+        self.fr_select.draw(self.fr_chart, cbx_values)
+        self.fr_chart.draw(self.fr_select.cbx_select.get())
+
+        self.win_charts.mainloop()
 
 
 class FrameFeatures:
@@ -230,6 +489,7 @@ class WinSearchResults:
         self.root = root
         self.win_search_results = Toplevel(self.root)
         self.win_search_results.title('Search Results')
+        center_window(self.win_search_results, 700, 400)
         self.table_results = ttk.Treeview()
 
     def draw(self, table, by_column, opt, txt):
@@ -254,7 +514,7 @@ class WinSearchResults:
             self.table_results.insert(parent='', index='end', iid=count_area, values=record)
             count_area += 1
 
-        self.table_results.pack(fill='both')
+        self.table_results.pack(fill='both', padx=10, pady=10)
 
 
 class FrameSearch:
@@ -370,7 +630,7 @@ class EmployeeWindow:
     def __init__(self, emp):
         self.emp = database.search('employee', 'employee_id', emp)
         self.emp_win = Tk()
-        self.emp_win.geometry('800x600')
+        center_window(self.emp_win, 800, 600)
         self.emp_win.title('Welcome back: ' + self.emp[0][1] + ' !')
         self.table_names = ['supplier', 'household', 'employee', 'billing', 'area', 'service']
         self.tables = []
