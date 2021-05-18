@@ -36,13 +36,32 @@ CREATE TABLE "area" (
 
 CREATE TABLE "service" (
 	"service_id"	INTEGER NOT NULL,
-	"household_id"	INTEGER NOT NULL,
-	"service_type"	varchar(20) NOT NULL,
-	"service_request"	varchar(1000) NOT NULL,
+	"household_id"	INTEGER,
+	"service_type_id"	INTEGER,
+	"service_request"	varchar(1000),
 	"service_status"	varchar(10),
 	"date"	date,
 	PRIMARY KEY("service_id" AUTOINCREMENT),
-	FOREIGN KEY("household_id") REFERENCES "household"("household_id") ON DELETE SET NULL
+	FOREIGN KEY("household_id") REFERENCES "household"("household_id") ON DELETE SET NULL,
+	FOREIGN KEY("service_type_id") REFERENCES "servicetype"("service_type_id") ON DELETE SET NULL
+)
+
+CREATE TABLE "servicetype" (
+	"service_type_id"	INTEGER NOT NULL,
+	"service_type_name"	varchar(50),
+	PRIMARY KEY("service_type_id" AUTOINCREMENT)
+)
+
+CREATE TABLE "service" (
+	"service_id"	INTEGER NOT NULL,
+	"household_id"	INTEGER,
+	"service_type_id"	varchar(20),
+	"service_request"	varchar(1000),
+	"service_status"	varchar(10),
+	"date"	date,
+	PRIMARY KEY("service_id" AUTOINCREMENT),
+	FOREIGN KEY("household_id") REFERENCES "household"("household_id") ON DELETE SET NULL,
+	FOREIGN KEY("service_type_id") REFERENCES "service_type"("service_type_id") ON DELETE SET NULL
 )
 
 
