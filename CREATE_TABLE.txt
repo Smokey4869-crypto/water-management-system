@@ -48,11 +48,10 @@ CREATE TABLE "service" (
 
 CREATE TABLE "household" (
 	"household_id"	INTEGER NOT NULL,
-	"household_owner"	varchar(30) NOT NULL,
-	"area_id"	INTEGER,
-	"address"	varchar(200) NOT NULL,
-	"phone"	varchar(10) NOT NULL,
-	FOREIGN KEY("area_id") REFERENCES "area"("area_id") ON DELETE SET NULL,
+	"household_owner"	varchar(30),
+	"address_id"	INTEGER,
+	"phone"	varchar(10),
+	FOREIGN KEY("address_id") REFERENCES "address"("address_id") ON DELETE SET NULL,
 	PRIMARY KEY("household_id" AUTOINCREMENT)
 )
 
@@ -74,7 +73,13 @@ CREATE TABLE "householdlogin" (
 	FOREIGN KEY("household_id") REFERENCES "household"("household_id"),
 	PRIMARY KEY("household_id")
 )
-
+CREATE TABLE "address" (
+	"address_id"	INTEGER NOT NULL,
+	"area_id" INTEGER,
+	"address_name"	varchar(30),
+	FOREIGN KEY("area_id") REFERENCES "area"("area_id") ON DELETE SET NULL,
+	PRIMARY KEY("address_id" AUTOINCREMENT)
+)
 
 
 
