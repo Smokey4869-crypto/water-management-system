@@ -9,17 +9,18 @@ import math
 
 
 class Customers:
-    def __init__(self, root, household_name, household_id):
+    def __init__(self, household_id, household_name, area, address):
         self.id = household_id
         self.username = household_name
+        self.area = area
+        self.address = address
 
-        self.root = root
+        self.root = Tk()
         self.root.title("Welcome " + self.username)
-        self.root.geometry("1300x720+0+0")
-        self.root.iconbitmap('water.ico')
+        self.root.geometry("1300x720")
 
         # Connect database
-        self.database = sqlite3.connect('water.db')
+        self.database = sqlite3.connect('my_water.db')
         self.cursor = self.database.cursor()
 
         # Create a style for notebook
@@ -49,68 +50,66 @@ class Customers:
                 }
             }
         })
-        # Images for home frame
-        self.user_logo = ImageTk.PhotoImage(Image.open("images//user_logo.png").resize((40, 40), Image.ANTIALIAS))
-        self.water_logo = ImageTk.PhotoImage(Image.open("images//water_logo.png").resize((40, 40), Image.ANTIALIAS))
-        self.money_logo = ImageTk.PhotoImage(Image.open("images//money_logo.jpg").resize((55, 55), Image.ANTIALIAS))
+        # Background for home frame
+        self.home_bg = ImageTk.PhotoImage(Image.open("images//home_frame.png").resize((882, 475), Image.ANTIALIAS))
 
         # =======================Set background image=====================
-        self.image_bg = ImageTk.PhotoImage(
-            Image.open('images//water_background.jpg').resize((1300, 720), Image.ANTIALIAS))
-        self.background = Label(self.root, image=self.image_bg)
-        self.background.place(x=0, y=0)
+        image = ImageTk.PhotoImage(Image.open("images//customer_bg.png").resize((1300, 720), Image.ANTIALIAS))
+        canvas = Canvas(self.root)
+        canvas.pack(fill="both", expand=True)
+        canvas.create_image(0, 0, image=image, anchor="nw")
 
         # =================================================================
         # =======================Create features frame=====================
         # =================================================================
-        self.feature = LabelFrame(self.root, height=561, width=1159, bg="white", highlightbackground="black")
-        self.feature.place(x=60, y=50)
-
-        self.user = ImageTk.PhotoImage(Image.open("images//user.png").resize((80, 80), Image.ANTIALIAS))
-        self.user_label = Label(self.feature, image=self.user, bg="white")
-        self.user_label.place(x=40, y=10)
+        feature = LabelFrame(self.root, height=300, width=184.689, bg="#3f489d", relief="flat")
+        feature.place(x=100, y=200)
 
         # Home button
-        self.home_btn = Button(self.feature, text="HOME", font=("arial", 10, "bold"), width=20, bg="white",
-                               command=self.click_home)
-        self.home_btn.place(x=0, y=100)
+        home_btn = Button(feature, text="HOME", font=("arial", 10, "bold"), width=22,
+                          bg="#3f489d", fg="white", relief=GROOVE,
+                          command=self.click_home)
+        home_btn.place(x=-1, y=0)
         # View Detail button
-        self.view_btn = Button(self.feature, text="VIEW DETAIL", font=("arial", 10, "bold"), width=20, bg="white",
-                               command=self.click_view)
-        self.view_btn.place(x=0, y=130)
+        view_btn = Button(feature, text="VIEW DETAIL", font=("arial", 10, "bold"), width=22,
+                          bg="#3f489d", fg="white", relief=GROOVE,
+                          command=self.click_view)
+        view_btn.place(x=-1, y=27)
         # Exit button
-        self.exit_btn = Button(self.feature, text="EXIT", font=("arial", 10, "bold"), width=20, bg="white",
-                               command=self.click_exit)
-        self.exit_btn.place(x=0, y=160)
+        exit_btn = Button(feature, text="EXIT", font=("arial", 10, "bold"), width=22,
+                          bg="#3f489d", fg="white", relief=GROOVE,
+                          command=self.click_exit)
+        exit_btn.place(x=-1, y=54)
 
         # =================================================================
         # =============================Log out panel=======================
         # =================================================================
-        self.panel = LabelFrame(self.feature, width=987, height=40, bg="white", highlightbackground="black")
-        self.panel.place(x=170, y=-2)
+        panel = LabelFrame(self.root, width=800, height=40, bg="white", relief=FLAT)
+        panel.place(x=356, y=65)
 
-        self.welcome = Label(self.panel, text="Hello, " + self.username, font=("Calibri", 12, "bold"), bg='white')
-        self.welcome.place(x=711, y=6)
+        welcome = Label(panel, text="Hello, " + self.username, font=("arial", 12), bg='white', fg="#005580")
+        welcome.place(x=530, y=6)
 
         # Log out button
-        self.logout_btn = Button(self.panel, text="Log Out", command=self.click_logout, relief=FLAT,
-                                 font=("Calibri", 10), bg='white')
-        self.logout_btn.place(x=920, y=6)
+        logout_btn = Button(panel, text="Log Out", command=self.click_logout, relief=FLAT,
+                            font=("arial", 10), bg='white', fg="#005580")
+        logout_btn.place(x=720, y=6)
 
         self.click_home()
+        self.root.mainloop()
 
     def click_view(self):
-        view_frame = LabelFrame(self.feature, width=987, height=522, bg="white", highlightbackground="black")
-        view_frame.place(x=170, y=37)
+        view_frame = LabelFrame(self.root, width=882, height=475, bg="white", relief=FLAT)
+        view_frame.place(x=300, y=126)
 
         self.style.theme_use('pastel')
         # ======================Create notebook===================
         notebook = ttk.Notebook(view_frame)
-        notebook.place(x=52, y=6)
+        notebook.place(x=30, y=2)
 
-        self.frame1 = Frame(notebook, width=893, height=459, bg="#ccf3ff")
-        self.frame2 = Frame(notebook, width=893, height=459, bg="#ccf3ff")
-        self.search = Frame(notebook, width=893, height=459, bg="#ccf3ff")
+        self.frame1 = Frame(notebook, width=820, height=430, bg="#ccf3ff")
+        self.frame2 = Frame(notebook, width=820, height=430, bg="#ccf3ff")
+        self.search = Frame(notebook, width=820, height=430, bg="#ccf3ff")
 
         self.frame1.pack(fill="both", expand=1)
         self.frame2.pack(fill="both", expand=1)
@@ -207,20 +206,11 @@ class Customers:
     def view_water_consumption(self, year):
         # Plot
         fig1 = plt.figure(figsize=(5, 5), dpi=80, tight_layout={'pad': 1})
+        fig1.patch.set_facecolor('#ccf3ff')
         canvas1 = FigureCanvasTkAgg(fig1, master=self.frame1)
 
-        months, water_amounts = self.water_consumed(year)
-        total_amount = 0
-        for i in range(len(water_amounts)):
-            total_amount += water_amounts[i]
-        average_amount = math.ceil((total_amount / len(water_amounts)) * 10) / 10
-        plt.clf()
-        plt.bar(months, water_amounts, width=0.4)
-        plt.plot([0, 11], [average_amount, average_amount], "k--")
+        average_amount, total_amount = self.water_consumed(year)
         plt.legend(['Average'])
-        plt.xlabel("Month")
-        plt.ylabel("Water amount")
-        plt.title("Water consumption in " + year)
 
         canvas1.draw()
         canvas1.get_tk_widget().place(x=400, y=30)
@@ -238,18 +228,8 @@ class Customers:
         fig2 = plt.figure(figsize=(5, 5), dpi=80, tight_layout={'pad': 1})
         canvas2 = FigureCanvasTkAgg(fig2, master=self.frame2)
 
-        months, amount_of_money = self.money_consumed(year)
-        total_amount = 0
-        for i in range(len(amount_of_money)):
-            total_amount += amount_of_money[i]
-        average_amount = math.ceil((total_amount / len(amount_of_money)) * 10) / 10
-        plt.clf()
-        plt.bar(months, amount_of_money, width=0.4)
-        plt.plot([0, 11], [average_amount, average_amount], "k--")
+        average_amount, total_amount = self.money_consumed(year)
         plt.legend(['Average'])
-        plt.xlabel("Month")
-        plt.ylabel("Money Spent")
-        plt.title("Money spent in water in " + year)
 
         canvas2.draw()
         canvas2.get_tk_widget().place(x=400, y=30)
@@ -284,11 +264,11 @@ class Customers:
         # Format Columns
         tree.column("#0", width=0, stretch=NO)
         tree.column("Billing ID", anchor=CENTER, width=100)
-        tree.column("Household ID", anchor=CENTER, width=120)
+        tree.column("Household ID", anchor=CENTER, width=100)
         tree.column("Water Consumption", anchor=CENTER, width=120)
-        tree.column("From Date", anchor=CENTER, width=120)
-        tree.column("To Date", anchor=CENTER, width=120)
-        tree.column("Total Money", anchor=E, width=120)
+        tree.column("From Date", anchor=CENTER, width=100)
+        tree.column("To Date", anchor=CENTER, width=100)
+        tree.column("Total Money", anchor=E, width=80)
         tree.column("Money Paid", anchor=CENTER, width=120)
 
         # Create Headings
@@ -342,11 +322,11 @@ class Customers:
             count += 1
 
     def click_logout(self):
+        from water import Login
         """Logouts the user to login page from where they will require password in order to login again"""
-        win = Toplevel()
-        # LoginScreen(win)
-        self.root.withdraw()
-        win.deiconify()
+        self.root.destroy()
+        win = Tk()
+        Login(win)
 
     def click_exit(self):
         """ Allows user to terminates the program when chosen yes"""
@@ -356,70 +336,52 @@ class Customers:
             self.root.quit()
 
     def click_home(self):
-        home_frame = LabelFrame(self.feature, width=987, height=522, bg="white", highlightbackground="black")
-        home_frame.place(x=170, y=37)
+        home_frame = Label(self.root,  image=self.home_bg, bg="white", relief=FLAT)
+        home_frame.place(x=300, y=126)
 
         # ======================Information frame=============================
-        info_frame = LabelFrame(home_frame, width=330, height=180, bg="white", relief="raised")
-        info_frame.place(x=80, y=50)
 
-        info_label = Label(info_frame, image=self.user_logo, bg="white", width=50, height=50, relief="flat")
-        info_label.place(x=10, y=10)
+        id = Label(home_frame, text=str(self.id), fg="#004d99", bg="#e7f5fd", font=("arial", 13))
+        id.place(x=115, y=88)
 
-        i_label1 = Label(info_frame, text="Personal Information:", fg="#1a53ff", bg="white",
-                         font=("Calibri", 15))
-        i_label1.place(x=70, y=20)
+        name = Label(home_frame, text=self.username, fg="#004d99", bg="#e7f5fd", font=("arial", 13))
+        name.place(x=172, y=110)
 
-        id = Label(info_frame, text="ID: " + str(self.id), fg="#004d99", bg="white", font=("Calibri", 15))
-        id.place(x=60, y=60)
+        area = Label(home_frame, text=self.area, fg="#004d99", bg="#e7f5fd", font=("arial", 13))
+        area.place(x=130, y=136)
 
-        name = Label(info_frame, text="Full name: " + self.username, fg="#004d99", bg="white", font=("Calibri", 15))
-        name.place(x=60, y=90)
-
+        address = Label(home_frame, text=self.address, fg="#004d99", bg="#e7f5fd", font=("arial", 13))
+        address.place(x=160, y=160)
         # ==========================Water spent frame============================
-        water_frame = LabelFrame(home_frame, width=330, height=180, bg="white", relief="raised")
-        water_frame.place(x=550, y=300)
+        water_frame = LabelFrame(home_frame, width=330, height=160, bg="#e7f5fd", relief=FLAT)
+        water_frame.place(x=480, y=60)
 
-        months, water_amounts = self.water_consumed("2021")
-        total_amount = 0
-        for i in range(len(water_amounts)):
-            total_amount += water_amounts[i]
-
-        water_label = Label(water_frame, image=self.water_logo, bg="white", width=50, height=50, relief="flat")
-        water_label.place(x=10, y=10)
-
-        w_label1 = Label(water_frame, text="Total amount of water\nused in 2021:", fg="#1a53ff", bg="white",
-                         font=("Calibri", 15))
-        w_label1.place(x=70, y=20)
-        w_label2 = Label(water_frame, text=str(total_amount) + " m3", fg="#004d99", bg="white", font=("Calibri", 25))
-        w_label2.place(x=110, y=100)
+        fig2 = plt.figure(figsize=(4, 2), dpi=80, tight_layout={'pad': 1})
+        fig2.patch.set_facecolor('#e7f5fd')
+        canvas2 = FigureCanvasTkAgg(fig2, master=water_frame)
+        self.water_consumed("2021")
+        canvas2.draw()
+        canvas2.get_tk_widget().place(x=0, y=0)
 
         # ==========================Calendar============================================
-        cal_frame = LabelFrame(home_frame, width=330, height=180, bg="white", relief="raised")
-        cal_frame.place(x=550, y=50)
+        cal_frame = LabelFrame(home_frame, width=240, height=180, bg="#e7f5fd", relief=FLAT)
+        cal_frame.place(x=70, y=250)
         cal = Calendar(cal_frame, selectmode="day", year=2021, month=5, day=15, showweeknumbers=False,
-                       background="white", foreground='black', bordercolor="white",
+                       background="#e7f5fd", foreground='black', bordercolor="white",
                        headersbackground="white", headersforeground='#1a53ff',
                        selectbackground="#ccf3ff", selectforeground="black")
-        cal.place(x=50, y=2)
+        cal.place(x=2, y=2)
 
         # ========================Money spent frame===============================
-        money_frame = LabelFrame(home_frame, width=330, height=180, bg="white", relief="raised")
-        money_frame.place(x=80, y=300)
+        money_frame = LabelFrame(home_frame, width=330, height=160, bg="#e7f5fd", relief=FLAT)
+        money_frame.place(x=480, y=280)
 
-        months, amount_of_money = self.money_consumed("2021")
-        total_amount = 0
-        for i in range(len(amount_of_money)):
-            total_amount += amount_of_money[i]
-
-        money_label = Label(money_frame, image=self.money_logo, bg="white", width=55, height=55, relief="flat")
-        money_label.place(x=10, y=10)
-
-        m_label1 = Label(money_frame, text="Total amount of money\nused in 2021:", fg="#1a53ff", bg="white",
-                         font=("Calibri", 15))
-        m_label1.place(x=70, y=20)
-        m_label2 = Label(money_frame, text=str(total_amount) + " VND", fg="#004d99", bg="white", font=("Calibri", 25))
-        m_label2.place(x=70, y=100)
+        fig2 = plt.figure(figsize=(4, 2), dpi=80, tight_layout={'pad': 1})
+        fig2.patch.set_facecolor('#e7f5fd')
+        canvas2 = FigureCanvasTkAgg(fig2, master=money_frame)
+        self.money_consumed("2021")
+        canvas2.draw()
+        canvas2.get_tk_widget().place(x=0, y=0)
 
     def money_consumed(self, year):
         self.cursor.execute("SELECT * FROM billing")
@@ -431,7 +393,18 @@ class Customers:
                 if record[3][0:4] == year:
                     amount_of_money.append(record[5])
                     months.append(record[3][5:7])
-        return months, amount_of_money
+        total_amount = 0
+        for i in range(len(amount_of_money)):
+            total_amount += amount_of_money[i]
+        average_amount = math.ceil((total_amount / len(amount_of_money)) * 10) / 10
+        plt.clf()
+        plt.bar(months, amount_of_money, width=0.4)
+        plt.plot([0, 11], [average_amount, average_amount], "k--")
+        plt.xlabel("Month")
+        plt.ylabel("Money Spent")
+        plt.title("Money spent in water in " + year)
+
+        return average_amount, total_amount
 
     def water_consumed(self, year):
         self.cursor.execute("SELECT * FROM billing")
@@ -443,19 +416,31 @@ class Customers:
                 if record[3][0:4] == year:
                     water_amounts.append(record[2])
                     months.append(record[3][5:7])
-        return months, water_amounts
+        total_amount = 0
+        for i in range(len(water_amounts)):
+            total_amount += water_amounts[i]
+        average_amount = math.ceil((total_amount / len(water_amounts)) * 10) / 10
+        plt.clf()
+        plt.bar(months, water_amounts, width=0.4)
+        plt.plot([0, 11], [average_amount, average_amount], "k--")
+        plt.xlabel("Month")
+        plt.ylabel("Water amount")
+        plt.title("Water consumption in " + year)
+
+        return average_amount, total_amount
+
 
 
 def window(id):
-    root = Tk()
-    database = sqlite3.connect('water.db')
+    database = sqlite3.connect('my_water.db')
     c = database.cursor()
-    c.execute("SELECT * FROM household")
+    c.execute("""SELECT household.household_id, household.household_owner, area.areaname, household.address 
+                 FROM household
+                 INNER JOIN area ON household.area_id = area.area_id;""")
     data = c.fetchall()
     for record in data:
         if record[0] == id:
-            Customers(root, record[1], record[0])
-    root.mainloop()
+            Customers(record[0], record[1], record[2], record[3])
 
 
 if __name__ == '__main__':
