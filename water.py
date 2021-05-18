@@ -1,14 +1,11 @@
-# import tkinter module
 from tkinter import *
 from tkinter import font as tkfont
 from db import Database
 from tkinter import ttk
 from tkinter import messagebox
-import matplotlib
-matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
-
+from PIL import ImageTk, Image
 from customers import window
 
 database = Database("water.db")
@@ -22,14 +19,11 @@ def center_window(root, width, height):
 
 
 class Login:
-    def __init__(self):
-        self.login = Tk()
+    def __init__(self, win):
+        self.login = win
         self.login.title('Login')
-        self.lb_wel = Label(self.login, text='Welcome!')
-        self.lb_wel.pack(pady=5)
-        self.frame_login = LabelFrame(self.login, text="Login")
-        self.frame_login.pack()
-        center_window(self.login, 300, 180)
+        self.login.geometry("975x650")
+        self.login.resizable(False, False)
 
         def btn_login():
             result = database.login(en_username.get(), en_password.get())
@@ -39,19 +33,20 @@ class Login:
                     EmployeeWindow(result[0])
                 else:
                     window(int(result[0]))
+        image = ImageTk.PhotoImage(Image.open("images//Login.png").resize((975, 650), Image.ANTIALIAS))
+        canvas = Canvas(self.login)
+        canvas.pack(fill="both", expand=True)
+        canvas.create_image(0, 0, image=image, anchor="nw")
 
-        lb_username = Label(self.frame_login, text='Username')
-        lb_username.grid(row=0, column=0)
-        en_username = Entry(self.frame_login)
-        en_username.grid(row=0, column=1, columnspan=4)
+        en_username = Entry(self.login, relief="flat", width=21, font=("Calibri", 13), bg="#E6E4EF")
+        en_username.place(x=632, y=251)
 
-        lb_password = Label(self.frame_login, text='Password')
-        lb_password.grid(row=1, column=0)
-        en_password = Entry(self.frame_login)
-        en_password.grid(row=1, column=1, columnspan=4)
+        en_password = Entry(self.login, relief="flat", width=21, font=("Calibri", 13), bg="#E6E4EF", show="*")
+        en_password.place(x=632, y=301)
 
-        btn_login = Button(self.frame_login, text='Login', command=btn_login)
-        btn_login.grid(row=2, column=0, columnspan=5, pady=5)
+        submit_btn = ImageTk.PhotoImage(Image.open("images//Submit_button.png").resize((300, 40), Image.ANTIALIAS))
+        btn_login = Button(self.login, image=submit_btn, relief="flat", bg="white", activebackground="white", command=btn_login)
+        btn_login.place(x=543, y=350)
 
         self.login.mainloop()
 
@@ -658,5 +653,7 @@ class EmployeeWindow:
         self.emp_win.mainloop()
 
 
-Login = Login()
-# emp_win = EmployeeWindow(1)
+if __name__ == '__main__':
+    win = Tk()
+    Login = Login(win)
+    # emp_win = EmployeeWindow(1)
