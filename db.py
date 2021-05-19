@@ -395,9 +395,19 @@ class Database:
         except Error as e:
             return e
 
+    def total_household(self):
+        self.cursorObj.execute("SELECT COUNT(*) FROM household")
+        result=self.cursorObj.fetchone()
+        return result[0]
+
+    def total_employee(self):
+        self.cursorObj.execute("SELECT COUNT(*) FROM employee")
+        result=self.cursorObj.fetchone()
+        return result[0]
+
 
 def main():
-    db = Database(filename='water.db')
+    db = Database(filename='water_database.db')
     # db.get_information_bill(1)
     # db.total_amount_of_water_by_area()
     # err = db.search("household", "hello", "10")
@@ -405,15 +415,16 @@ def main():
     # db.update_value('supplier', ['supplier_name', 'CompFive'], ['supplier_id', '5'])
     # db.delete_row('supplier', 'supplier_id', [13, 12])
     # print(db.get_col_type('billing'))
-    print(db.value_consumed_by_suppliers_or_areas([{'area_id': [1, 2, 3]}], "water_consumption"))
-    print(db.value_consumed_by_household(year='2021', month='1'))
-    print(db.value_consumed_by_household(year='2020'))
-    print(db.value_consumed_by_household())
-    print(db.water_consumed_by_area([1, 2, 3, 4]))
-    print(db.num_emp_gender('F'))
-    print(db.num_emp_role('director'))
-    print(db.num_households_in_area([1, 2, 3, 15]))
-    print(db.num_area_of_suppliers([1, 2, 3]))
+    # print(db.value_consumed_by_suppliers_or_areas([{'area_id': [1, 2, 3]}], "water_consumption"))
+    # print(db.value_consumed_by_household(year='2021', month='1'))
+    # print(db.value_consumed_by_household(year='2020'))
+    # print(db.value_consumed_by_household())
+    # print(db.water_consumed_by_area([1, 2, 3, 4]))
+    # print(db.num_emp_gender('F'))
+    # print(db.num_emp_role('director'))
+    # print(db.num_households_in_area([1, 2, 3, 15]))
+    # print(db.num_area_of_suppliers([1, 2, 3]))
+    print(db.total_employee())
 
 
 if __name__ == '__main__':
