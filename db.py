@@ -117,16 +117,18 @@ class Database:
             return e
 
     def join_two_tables(self, table1, table2, attributes):
-        sql = f'''SELECT * from {table1} JOIN {table2} ON '''
-        print(len(attributes))
-        if len(attributes) > 1:
-            for i in range(len(attributes) - 1):
-                sql += f'''{table1}.{attributes[i]} = {table2}.{attributes[i]} AND '''
+        try:
+            sql = f'''SELECT * from {table1} JOIN {table2} ON '''
+            print(len(attributes))
+            if len(attributes) > 1:
+                for i in range(len(attributes) - 1):
+                    sql += f'''{table1}.{attributes[i]} = {table2}.{attributes[i]} AND '''
 
-        sql += f'''{table1}.{attributes[len(attributes) - 1]} = {table2}.{attributes[len(attributes) - 1]}'''
-        print(sql)
-        self.cursorObj.execute(sql)
-        self.cursorObj.fetchall()
+            sql += f'''{table1}.{attributes[len(attributes) - 1]} = {table2}.{attributes[len(attributes) - 1]}'''
+            self.cursorObj.execute(sql)
+            self.cursorObj.fetchall()
+        except Error as e:
+            return e
 
     def list_tables(self):
         try:
