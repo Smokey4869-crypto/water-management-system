@@ -217,9 +217,9 @@ class Database:
             for condition in conditions:
                 for key, values in condition.items():
                     for value in values:
-                        command = f"SELECT {key}, SUM(CASE WHEN {key} = \'{value}\' THEN 1 ELSE 0 END) FROM {table}"
+                        command = f"SELECT SUM(CASE WHEN {key} = \'{value}\' THEN 1 ELSE 0 END) FROM {table}"
                         for row in self.cursorObj.execute(command):
-                            result.append(row)
+                            result.append(row[0])
             return result
         except Error as e:
             return e
