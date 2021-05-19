@@ -76,30 +76,34 @@ class Database:
             return e
 
     def get_col_type(self, table):
-        query = "pragma table_info({})".format(table)
-        results = self.cursorObj.execute(query).fetchall()
-        rows = []
-        for result in results:
-            rows.append(result[2])
-        return rows
+        try:
+            query = "pragma table_info({})".format(table)
+            results = self.cursorObj.execute(query).fetchall()
+            rows = []
+            for result in results:
+                rows.append(result[2])
+            return rows
+        except Error as e:
+            return e
 
     def get_col(self, table):
-        self.cursorObj.execute('SELECT * FROM {}'.format(table))
-        names = list(map(lambda x: x[0], self.cursorObj.description))
-        return names
+        try:
+            self.cursorObj.execute('SELECT * FROM {}'.format(table))
+            names = list(map(lambda x: x[0], self.cursorObj.description))
+            return names
+        except Error as e:
+            return e
 
     def get_all_col_record_in_table(self, table, col):
-        self.cursorObj.execute(f'SELECT * from {table}')
-        records = self.cursorObj.fetchall()
-        results = []
-        for record in records:
-            results.append(record[col])
-        return results
-
-    def insert_area(self, area_id, name, emp_id):
-        data = [(int(area_id), name, int(emp_id))]
-        self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", data)
-        self.db.commit()
+        try:
+            self.cursorObj.execute(f'SELECT * from {table}')
+            records = self.cursorObj.fetchall()
+            results = []
+            for record in records:
+                results.append(record[col])
+            return results
+        except Error as e:
+            return e
 
     def update_value(self, table, changes, condition):
         # change and condition in the form of a list
