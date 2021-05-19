@@ -206,17 +206,6 @@ class Database:
         except Error as e:
             return e
 
-    def num_area_of_suppliers(self, suppliers):
-        try:
-            result = []
-            for supplier in suppliers:
-                command = f"SELECT SUM(CASE WHEN supplier_id = \'{supplier}\' THEN 1 ELSE 0 END) FROM area"
-                for row in self.cursorObj.execute(command):
-                    result.append(row[0])
-            return result
-        except Error as e:
-            print(e)
-
     def num_of_value(self, table, conditions):
         # num_of-value(area, [{'supplier_id': [1, 2]}])
         try:
@@ -224,9 +213,9 @@ class Database:
             for condition in conditions:
                 for key, values in condition.items():
                     for value in values:
-                        command = f"SELECT SUM(CASE WHEN {key} = \'{value}\' THEN 1 ELSE 0 END) FROM {table}"
+                        command = f"SELECT {key}, SUM(CASE WHEN {key} = \'{value}\' THEN 1 ELSE 0 END) FROM {table}"
                         for row in self.cursorObj.execute(command):
-                            result.append(row[0])
+                            result.append(row)
             return result
         except Error as e:
             return e
@@ -295,6 +284,7 @@ def main():
     # print(db.num_emp_role('director'))
     # print(db.num_households_in_area([1, 2, 3, 15]))
     # print(db.num_area_of_suppliers([1, 2, 3]))
+    print(db.num_of_value('area', [{'supplier_id': [1, 2]}]))
 
 
 if __name__ == '__main__':
