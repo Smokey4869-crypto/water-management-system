@@ -153,41 +153,44 @@ class Database:
     # print bill
 
     def get_information_bill(self, household_id):
-        self.cursorObj.execute(
-            "SELECT * from billing WHERE household_id = '{}'".format(household_id))
-        rows = self.cursorObj.fetchone()
-        water_company_name = self.get_water_company_name(household_id)[0]
-        customer_info = self.select_specific_customer(household_id)
-        print(customer_info)
-        customer_name = customer_info[1]
-        no = rows[0]
-        cust_id = rows[1]
-        total_amount = rows[5]
-        from_date = rows[3]
-        to_date = rows[4]
-        water_amount = rows[2]
-        bill_name = 'bill_' + str(no) + '.txt'
-        m = ""
-        m += "============================================================\n"
-        m += "\n"
-        m += "                Water Bill" + "    " + "Bill number: %d\n\n" % no
-        m += "              Customer Id: %d\n\n" % cust_id
-        m += "------------------------------------------------------------\n"
-        m += water_company_name + "\n"
-        m += "Customer name:" + "      " + customer_name + "\n"
-        m += "Customer address:" + "   " + customer_info[3] + "\n"
-        m += "Customer phone:" + "     " + customer_info[4] + "\n"
-        m += "Time use water:" + "   " + from_date + " " + "to" + " " + to_date + "\n"
-        m += "Amount of water used:" + "   " + str(water_amount) + "m3" + "\n"
-        m += "Total money:" + "   " + str(total_amount) + "VND" + "\n"
-        m += "\n"
-        m += "                                       " + str(datetime.date.today()) + "\n"
-        m += "                                       " + "Signature" + "\n"
-        m += "                                     " + water_company_name + "\n"
-        m += "============================================================\n"
-        bill = open(bill_name, 'w')
-        bill.write(m)
-        bill.close()
+        try:
+            self.cursorObj.execute(
+                "SELECT * from billing WHERE household_id = '{}'".format(household_id))
+            rows = self.cursorObj.fetchone()
+            water_company_name = self.get_water_company_name(household_id)[0]
+            customer_info = self.select_specific_customer(household_id)
+            print(customer_info)
+            customer_name = customer_info[1]
+            no = rows[0]
+            cust_id = rows[1]
+            total_amount = rows[5]
+            from_date = rows[3]
+            to_date = rows[4]
+            water_amount = rows[2]
+            bill_name = 'bill_' + str(no) + '.txt'
+            m = ""
+            m += "============================================================\n"
+            m += "\n"
+            m += "                Water Bill" + "    " + "Bill number: %d\n\n" % no
+            m += "              Customer Id: %d\n\n" % cust_id
+            m += "------------------------------------------------------------\n"
+            m += water_company_name + "\n"
+            m += "Customer name:" + "      " + customer_name + "\n"
+            m += "Customer address:" + "   " + customer_info[3] + "\n"
+            m += "Customer phone:" + "     " + customer_info[4] + "\n"
+            m += "Time use water:" + "   " + from_date + " " + "to" + " " + to_date + "\n"
+            m += "Amount of water used:" + "   " + str(water_amount) + "m3" + "\n"
+            m += "Total money:" + "   " + str(total_amount) + "VND" + "\n"
+            m += "\n"
+            m += "                                       " + str(datetime.date.today()) + "\n"
+            m += "                                       " + "Signature" + "\n"
+            m += "                                     " + water_company_name + "\n"
+            m += "============================================================\n"
+            bill = open(bill_name, 'w')
+            bill.write(m)
+            bill.close()
+        except Error as e:
+            return e
 
     def value_consumed_by_household(self, type="water_consumption", year="", month=""):
         try:
@@ -268,6 +271,16 @@ class Database:
         except Error as e:
             return e
 
+    def column_unique(self, table, column):
+        try:
+            result = []
+            command = f"""SELECT DISTINCT({column}) FROM {table}"""
+            for value in self.cursorObj.execute(command):
+                result.append(value[0])
+            return result
+        except Error as e:
+            return e
+
 
 def main():
     db = Database(filename='water_database.db')
@@ -290,7 +303,9 @@ def main():
     # print(db.num_emp_role('director'))
     # print(db.num_households_in_area([1, 2, 3, 15]))
     # print(db.num_area_of_suppliers([1, 2, 3]))
-    print(db.num_of_value('area', [{'supplier_id': [1, 2]}]))
+    # print(db.num_of_value('area', [{'supplier_id': [1, 2]}]))
+    db.column_unique("employee", "sex")
+
 
 
 if __name__ == '__main__':
