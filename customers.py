@@ -3,13 +3,73 @@ from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
 from PIL import ImageTk, Image
 from datetime import datetime
-import sqlite3
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkcalendar import *
 import math
 from db import Database
 
-database = Database("water.db")
+database = Database("water_database.db")
+
+
+class FrameSetting:
+    def __init__(self, root, username):
+        self.root = root
+        self.setting_frame = LabelFrame()
+        self.username = username
+        self.entries = []
+        self.image_fr = ImageTk.PhotoImage(Image.open("images//Change_pass_cus.png")
+                                           .resize((882, 475), Image.ANTIALIAS))
+        self.sub_btn = ImageTk.PhotoImage(Image.open("images//Sub_btn_cus.png")
+                                          .resize((90, 30), Image.ANTIALIAS))
+        self.draw()
+
+    def draw(self):
+        self.setting_frame = Label(self.root, image=self.image_fr, bg="white", relief=FLAT)
+        self.setting_frame.place(x=300, y=126)
+
+        record = database.search_exact('adminlogin', 'username', self.username)[0]
+
+        user_entry = Entry(self.setting_frame, relief="flat", width=21, font=("Calibri", 12), bg="#d9eff4")
+        user_entry.place(x=340, y=180)
+        user_entry.insert(0, record[0])
+        user_entry['state'] = DISABLED
+        self.entries.append(user_entry)
+
+        pass_entry = Entry(self.setting_frame, relief="flat", width=21, font=("Calibri", 12), bg="#d9eff4")
+        pass_entry.place(x=340, y=260)
+        pass_entry.insert(0, record[1])
+        self.entries.append(pass_entry)
+
+        # row_id = 0
+        # for i in range(2):
+        #     # lb = Label(self.setting_frame, text=col, bg="#b3ecff")
+        #     # lb.place(x=200, y=0)
+        #     en = Entry(self.setting_frame, relief="flat", width=21, font=("Calibri", 12), bg="#d9eff4")
+        #     en.insert(0, record[row_id])
+        #     self.entries.append(en)
+        #     if row_id == 0:
+        #         en['state'] = DISABLED
+        #     en.grid()
+        #
+        #     row_id += 1
+
+        btn_submit = Button(self.setting_frame, image=self.sub_btn, command=self.submit, relief=FLAT, bg="#d9eff4",
+                            activebackground="#d9eff4")
+        btn_submit.place(x=390, y=330)
+
+    def submit(self):
+        records = []
+        for entry in self.entries:
+            records.append(entry.get())
+
+        database.update('adminlogin', records, records[0])
+
+        # database.delete_row('adminlogin', records[0])
+        # database.insert_gui('adminlogin', tuple(records))
+
+        print("To be Update: ", 'adminlogi ', records)
+
+        messagebox.showinfo(title=None, message='Changing Password Successfully')
 
 
 class Customers:
@@ -23,9 +83,9 @@ class Customers:
         self.root.title("Welcome " + self.username)
         self.root.geometry("1300x720")
 
-        # Connect database
-        self.database = sqlite3.connect('water.db')
-        self.cursor = self.database.cursor()
+        self.frame1 = Frame()
+        self.frame2 = Frame()
+        self.search = Frame()
 
         # Create a style for notebook
         self.style = ttk.Style()
@@ -79,11 +139,16 @@ class Customers:
                           bg="#3f489d", fg="white", relief=GROOVE,
                           command=self.click_view)
         view_btn.place(x=-1, y=27)
+        # Setting button
+        setting_btn = Button(feature, text="SETTING", font=("arial", 10, "bold"), width=22,
+                             bg="#3f489d", fg="white", relief=GROOVE,
+                             command=self.click_setting)
+        setting_btn.place(x=-1, y=54)
         # Exit button
         exit_btn = Button(feature, text="EXIT", font=("arial", 10, "bold"), width=22,
                           bg="#3f489d", fg="white", relief=GROOVE,
                           command=self.click_exit)
-        exit_btn.place(x=-1, y=54)
+        exit_btn.place(x=-1, y=81)
 
         # =================================================================
         # =============================Log out panel=======================
@@ -287,8 +352,7 @@ class Customers:
         tree.heading("Money Paid", text="Money Paid", anchor=CENTER)
 
         # Add Data
-        self.cursor.execute("SELECT *, CASE WHEN is_paid = 1 THEN 'Yes' ELSE 'No' END as paid FROM billing")
-        data = self.cursor.fetchall()
+        data = database.view_bill()
 
         if month == "January":
             month = "01"
@@ -328,13 +392,11 @@ class Customers:
 
     def click_logout(self):
         from water import Login
-        """Logouts the user to login page from where they will require password in order to login again"""
         self.root.destroy()
         win = Tk()
         Login(win)
 
     def click_exit(self):
-        """ Allows user to terminates the program when chosen yes"""
         self.root.deiconify()
         ask = messagebox.askyesnocancel("Confirm Exit", "Are you sure you want to Exit?")
         if ask is True:
@@ -346,8 +408,8 @@ class Customers:
 
         # ======================Information frame=============================
 
-        id = Label(home_frame, text=str(self.id), fg="#004d99", bg="#e7f5fd", font=("arial", 13))
-        id.place(x=115, y=88)
+        id_ = Label(home_frame, text=str(self.id), fg="#004d99", bg="#e7f5fd", font=("arial", 13))
+        id_.place(x=115, y=88)
 
         name = Label(home_frame, text=self.username, fg="#004d99", bg="#e7f5fd", font=("arial", 13))
         name.place(x=172, y=110)
@@ -372,7 +434,8 @@ class Customers:
         cal_frame = LabelFrame(home_frame, width=240, height=180, bg="#e7f5fd", relief=FLAT)
         cal_frame.place(x=70, y=250)
         date = str(datetime.date(datetime.now()))
-        cal = Calendar(cal_frame, selectmode="day", year=int(date[0:4]), month=int(date[5:7]), day=int(date[8:]), showweeknumbers=False,
+        cal = Calendar(cal_frame, selectmode="day", year=int(date[0:4]), month=int(date[5:7]), day=int(date[8:]),
+                       showweeknumbers=False,
                        background="#e7f5fd", foreground='black', bordercolor="white",
                        headersbackground="white", headersforeground='#1a53ff',
                        selectbackground="#ccf3ff", selectforeground="black")
@@ -388,6 +451,11 @@ class Customers:
         self.chart_money_consumed("2021")
         canvas2.draw()
         canvas2.get_tk_widget().place(x=0, y=0)
+
+    def click_setting(self):
+        setting_frame = LabelFrame(self.root, width=882, height=475, bg="white", relief=FLAT)
+        setting_frame.place(x=300, y=126)
+        FrameSetting(self.root, self.id)
 
     def chart_money_consumed(self, year):
         months, amount_of_money = database.money_consumed_per_month_by_year(self.id, year)
@@ -420,13 +488,12 @@ class Customers:
         return average_amount, total_amount
 
 
-def CustomerWin(id):
+def CustomerWin(id_):
     data = database.get_customer_info()
     for record in data:
-        if record[0] == id:
+        if record[0] == id_:
             Customers(record[0], record[1], record[2], record[3])
 
 
 if __name__ == '__main__':
     CustomerWin(3)
-

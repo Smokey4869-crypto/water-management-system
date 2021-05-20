@@ -1,15 +1,13 @@
 from tkinter import *
-from tkinter import font as tkfont
 from db import Database
 from tkinter import ttk
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from PIL import ImageTk, Image
-from customers import CustomerWin
-from employee import EmployeeWindow
 
-database = Database("water.db")
+
+database = Database("water_database.db")
 
 
 def center_window(root, width, height):
@@ -26,10 +24,15 @@ class WinAdd:
 
         self.labels = []
         self.entries = []
-        self.win_add = Toplevel(self.root, bg="#ffcccc")
+        self.win_add = Toplevel(self.root)
         self.win_add.title('Adding Things')
-        center_window(self.win_add, 400, 400)
-        self.frame_form = LabelFrame(self.win_add, text="Form", bg="white")
+        self.win_add.geometry("400x400")
+        self.win_add.resizable(False, False)
+        self.add_bg = ImageTk.PhotoImage(Image.open("images//WinAddUpdate_admin.png")
+                                         .resize((400, 400), Image.ANTIALIAS))
+        self.sub_btn = ImageTk.PhotoImage(Image.open("images//Sub_btn_admin.png").resize((90, 30), Image.ANTIALIAS))
+        self.frame = Label()
+        self.frame_form = LabelFrame()
         self.btn_sub = Button()
 
     def draw(self):
@@ -38,14 +41,16 @@ class WinAdd:
         print(table_name)
 
         self.frame_form.destroy()
-        self.frame_form = LabelFrame(self.win_add, text="Form", bg="white")
-        self.frame_form.place(x=88, y=60)
+        self.frame = Label(self.win_add, image=self.add_bg, bg="white", relief=FLAT)
+        self.frame.place(x=0, y=0)
+        self.frame_form = LabelFrame(self.frame, bg="#facbcb", relief=FLAT)
+        self.frame_form.place(x=82, y=75)
 
         columns = database.get_col(table_name)
         i_row = 0
 
         for column in columns:
-            lb = Label(self.frame_form, text=column, bg="white")
+            lb = Label(self.frame_form, text=column, bg="#facbcb", font=("Calibri", 10))
             lb.grid(row=i_row, column=0, padx=5, pady=5)
             en = Entry(self.frame_form)
             en.grid(row=i_row, column=1, columnspan=4, padx=5, pady=5)
@@ -55,17 +60,23 @@ class WinAdd:
 
             i_row += 1
 
-        self.btn_sub = Button(self.frame_form, text='Submit', bg="white", command=lambda: self.submit(table_name))
+        self.btn_sub = Button(self.frame_form, image=self.sub_btn, bg="#facbcb", relief=FLAT,
+                              command=lambda: self.submit(table_name), activebackground="#facbcb")
         self.btn_sub.grid(row=i_row, columnspan=5, padx=10, pady=10)
 
     def submit(self, table_name):
-        records = []
-        for entry in self.entries:
-            records.append(entry.get())
-            entry.delete(0, END)
-        database.insert_gui(table_name, tuple(records))
+        columns = database.get_col(table_name)
+        duplicate = database.search_exact(table_name, columns[0], self.entries[0].get())
+        if len(duplicate) == 0:
+            records = []
+            for entry in self.entries:
+                records.append(entry.get())
+                entry.delete(0, END)
+            database.insert_gui(table_name, tuple(records))
 
-        self.frame_table.redraw()
+            self.frame_table.redraw()
+        else:
+            messagebox.showwarning(title=None, message='Duplicated ID')
 
 
 class WinUpdate:
@@ -75,48 +86,61 @@ class WinUpdate:
 
         self.labels = []
         self.entries = []
-        self.win_update = Toplevel(self.root, bg="#ffcccc")
+        self.win_update = Toplevel(self.root)
         self.win_update.title('Update Things')
-        center_window(self.win_update, 400, 400)
-        self.frame_select = LabelFrame()
-        self.frame_form = LabelFrame(self.win_update, text="Form", bg="white")
+        self.win_update.geometry("400x400")
+        self.win_update.resizable(False, False)
+        self.frame = Label()
+        self.add_bg = ImageTk.PhotoImage(Image.open("images//WinAddUpdate_admin.png")
+                                         .resize((400, 400), Image.ANTIALIAS))
+        self.sub_btn = ImageTk.PhotoImage(Image.open("images//Sub_btn_admin.png").resize((90, 30), Image.ANTIALIAS))
+        self.frame_form = LabelFrame()
         self.btn_sub = Button()
 
     def draw(self):
-        nb = self.frame_table.get_notebook()
-        table_name = nb.tab(nb.select(), "text")
         row = self.frame_table.curr_row
+        if len(row) == 0:
+            self.win_update.destroy()
+            messagebox.showwarning(title=None, message="Please pick a Record")
+        else:
+            nb = self.frame_table.get_notebook()
+            table_name = nb.tab(nb.select(), "text")
 
-        self.frame_form.destroy()
-        self.frame_form = LabelFrame(self.win_update, text="Form", bg="white")
-        self.frame_form.place(x=88, y=80)
+            self.frame_form.destroy()
+            self.frame = Label(self.win_update, image=self.add_bg, bg="white", relief=FLAT)
+            self.frame.place(x=0, y=0)
+            self.frame_form = LabelFrame(self.frame, bg="#facbcb", relief=FLAT)
+            self.frame_form.place(x=82, y=75)
 
-        columns = database.get_col(table_name)
-        i_row = 0
+            columns = database.get_col(table_name)
+            i_row = 0
 
-        for column in columns:
-            lb = Label(self.frame_form, text=column, bg="white")
-            lb.grid(row=i_row, column=0, padx=5, pady=5)
-            en = Entry(self.frame_form)
-            en.grid(row=i_row, column=1, columnspan=4, padx=5, pady=5)
-            en.insert(END, row[i_row])
-            if i_row == 0:
-                en['state'] = DISABLED
-            self.labels.append(lb)
-            self.entries.append(en)
+            for column in columns:
+                lb = Label(self.frame_form, text=column, bg="#facbcb", font=("Calibri", 10))
+                lb.grid(row=i_row, column=0, padx=5, pady=5)
+                en = Entry(self.frame_form)
+                en.grid(row=i_row, column=1, columnspan=4, padx=5, pady=5)
+                en.insert(END, row[i_row])
+                if i_row == 0:
+                    en['state'] = DISABLED
+                self.labels.append(lb)
+                self.entries.append(en)
 
-            i_row += 1
+                i_row += 1
 
-        self.btn_sub = Button(self.frame_form, text='Submit', bg="white", command=lambda: self.submit(table_name))
-        self.btn_sub.grid(row=i_row, columnspan=5, padx=10, pady=10)
+            self.btn_sub = Button(self.frame_form, image=self.sub_btn, bg="#facbcb", relief=FLAT,
+                                  command=lambda: self.submit(table_name), activebackground="#facbcb")
+            self.btn_sub.grid(row=i_row, columnspan=5, padx=10, pady=10)
 
     def submit(self, table_name):
         records = []
         for entry in self.entries:
             records.append(entry.get())
 
-        database.delete_row(table_name, records[0])
-        database.insert_gui(table_name, tuple(records))
+        database.update(table_name, records, records[0])
+
+        # database.delete_row(table_name, records[0])
+        # database.insert_gui(table_name, tuple(records))
 
         self.frame_table.redraw()
 
@@ -130,20 +154,24 @@ class WinDelete:
         self.root = root
 
     def draw(self):
-        nb = self.frame_table.get_notebook()
-        table_name = nb.tab(nb.select(), "text")
         row = self.frame_table.curr_row
+        if len(row) == 0:
+            messagebox.showwarning(title=None, message='Please pick a Record')
+        else:
+            nb = self.frame_table.get_notebook()
+            table_name = nb.tab(nb.select(), "text")
 
-        response = messagebox.askquestion("Delete ?", "Do you want to delete ?")
-        if response == 'yes':
-            database.delete_row(table_name, row[0])
+            response = messagebox.askquestion("Delete ?", "Do you want to delete ?")
+            if response == 'yes':
+                database.delete_row(table_name, row[0])
 
-        self.frame_table.redraw()
+            self.frame_table.redraw()
 
 
 class FrameSelectWinChart:
-    def __init__(self, root):
+    def __init__(self, root, frame):
         self.root = root
+        self.frame = frame
         self.fr_select = LabelFrame()
         self.cbx_values = []
         self.lb_select = Label()
@@ -154,33 +182,34 @@ class FrameSelectWinChart:
         self.btn_done = Button()
 
     def draw(self, fr_chart, cbx_values):
-        self.fr_select = LabelFrame(self.root, text="Selection", bg="white")
-        self.fr_select.pack(fill=X, padx=10, pady=10)
+        self.fr_select = LabelFrame(self.frame, bg="#ffcccc", relief=FLAT)
+        self.fr_select.place(x=50, y=40)
         self.cbx_values = cbx_values
-        self.lb_select = Label(self.fr_select, text="Get Info About", bg="white")
+        self.lb_select = Label(self.fr_select, text="Get Info About", bg="#ffcccc")
         self.lb_select.grid(row=0, column=0, padx=5, pady=5)
         self.cbx_select = ttk.Combobox(self.fr_select, width=25, values=self.cbx_values)
         self.cbx_select.grid(row=0, column=1, padx=5, pady=5, columnspan=2)
         self.cbx_select.current(0)
 
-        self.lb_type = Label(self.fr_select, text="Type ", bg="white")
+        self.lb_type = Label(self.fr_select, text="Type ", bg="#ffcccc")
         self.lb_type.grid(row=1, column=0, padx=5, pady=5)
-        self.cbx_type = ttk.Combobox(self.fr_select, width=25, values=['gender', 'role'])
+        self.cbx_type = ttk.Combobox(self.fr_select, width=25,
+                                     values=['gender (pie chart)', 'gender (bar chart)', 'designation'])
         self.cbx_type.grid(row=1, column=1, padx=5, pady=5, columnspan=2)
         self.cbx_type.current(0)
 
         self.cbx_select.bind("<<ComboboxSelected>>", lambda _: self.change_cbx_type(self.cbx_select.get()))
 
-        self.btn_show = Button(self.fr_select, text="Show", bg="white",
+        self.btn_show = Button(self.fr_select, text="Show", bg="#ffcccc",
                                command=lambda: fr_chart.draw([self.cbx_select.get(), self.cbx_type.get()]))
         self.btn_show.grid(row=1, column=3, padx=5, pady=5)
 
-        self.btn_done = Button(self.fr_select, text="Done", command=self.done, bg="white")
+        self.btn_done = Button(self.fr_select, text="Done", command=self.done, bg="#ffcccc")
         self.btn_done.grid(row=1, column=4, padx=5, pady=5)
 
     def change_cbx_type(self, selection):
         if selection == 'employee':
-            self.cbx_type['values'] = ['gender', 'role']
+            self.cbx_type['values'] = ['gender (pie chart)', 'gender (bar char)', 'desingnation']
         elif selection == 'household':
             self.cbx_type['values'] = ['num in each area']
         elif selection == 'area':
@@ -200,21 +229,24 @@ class FrameSelectWinChart:
 
 
 class FrameChartWinChart:
-    def __init__(self, root):
+    def __init__(self, root, frame):
         self.root = root
+        self.frame = frame
         self.fr_chart = LabelFrame()
         self.c_type = []
 
     def draw(self, c_type):
         self.fr_chart.destroy()
-        self.fr_chart = LabelFrame(self.root, text="Chart", bg="white")
-        self.fr_chart.pack(fill=X, padx=10, pady=10)
+        self.fr_chart = LabelFrame(self.frame, bg="#ffcccc", relief=FLAT)
+        self.fr_chart.place(x=50, y=180)
         self.c_type = c_type
         if c_type[0] == 'employee':
-            if c_type[1] == 'gender':
-                self.draw_chart_emp_gender()
-            elif c_type[1] == 'role':
-                self.draw_chart_emp_role()
+            if c_type[1] == 'gender (pie chart)':
+                self.draw_chart_emp_gender_pie_chart()
+            elif c_type[1] == 'gender (bar chart)':
+                self.draw_chart_emp_gender_bar_chart()
+            elif c_type[1] == 'designation':
+                self.draw_chart_emp_designation()
         elif c_type[0] == 'household':
             if c_type[1] == 'num in each area':
                 self.draw_chart_hh_in_area()
@@ -231,34 +263,50 @@ class FrameChartWinChart:
             elif c_type[1] == 'amount of money of each supplier':
                 self.draw_chart_bill_money_supplier()
 
-    def draw_chart_emp_gender(self):
-        f = plt.figure(figsize=(6, 6), dpi=100)
-        labels = ['F', 'M']
+    def draw_chart_emp_gender_pie_chart(self):
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
+        labels = database.column_unique('employee', 'sex')
         values = database.num_of_value('employee', [{'sex': labels}])
 
-        plt.pie(values, labels=labels)
-        plt.legend(['Female', 'Male'])
-        plt.title(self.c_type[1])
+        plt.pie(values, labels=['Female', 'Male'], radius=1.5, autopct="%0.2f%%")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
-    def draw_chart_emp_role(self):
-        f = plt.figure(figsize=(6, 6), dpi=100)
-        labels = ['director', 'analyst']
+    def draw_chart_emp_gender_bar_chart(self):
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
+        labels = database.column_unique('employee', 'sex')
+        values = database.num_of_value('employee', [{'sex': labels}])
+
+        plt.bar(labels, values)
+        plt.xlabel("Gender")
+        plt.ylabel("Number of Employees")
+        plt.title("Gender")
+        canvas = FigureCanvasTkAgg(f, self.fr_chart)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    def draw_chart_emp_designation(self):
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
+        labels = database.column_unique('employee', 'designation')
         values = database.num_of_value('employee', [{'designation': labels}])
 
         plt.bar(labels, values)
-        plt.title(self.c_type[1])
+        plt.xlabel("Designation")
+        plt.ylabel("Number of Employees")
+        plt.title("Designation")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
     def draw_chart_hh_in_area(self):
-        f = plt.figure(figsize=(20, 10), dpi=50)
-
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
         ids = database.get_all_col_record_in_table('area', 0)
         labels = database.get_all_col_record_in_table('area', 1)
         values = []
@@ -266,28 +314,33 @@ class FrameChartWinChart:
             values.append(database.total_household_by_area(id_)[0])
 
         plt.bar(labels, values)
-        plt.title(self.c_type[1])
+        plt.xlabel("Areas")
+        plt.ylabel("Number of households")
+        plt.title("Number of households in each area")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
     def draw_chart_area_of_supplier(self):
-        f = plt.figure(figsize=(20, 10), dpi=50)
-
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
         ids = database.get_all_col_record_in_table('supplier', 0)
         labels = database.get_all_col_record_in_table('supplier', 1)
         values = database.num_area_of_suppliers(ids)
 
         plt.bar(labels, values)
-        plt.title(self.c_type[1])
+        plt.xlabel("Suppliers")
+        plt.ylabel("Number of areas")
+        plt.title("Number of areas of each supplier")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
     def draw_chart_bill_water_area(self):
-        f = plt.figure(figsize=(20, 10), dpi=50)
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
         supplier_ids = database.get_all_col_record_in_table('area', 0)
         results = database.values_consumed_by_suppliers_or_areas([{'area_id': supplier_ids}], "water_consumption")
         labels = database.get_all_col_record_in_table('area', 1)
@@ -297,14 +350,17 @@ class FrameChartWinChart:
             values.append(result[1])
 
         plt.bar(labels, values)
-        plt.title(self.c_type[1])
+        plt.xlabel("Areas")
+        plt.ylabel("Amount of water")
+        plt.title("Water spent in each area")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
     def draw_chart_bill_water_supplier(self):
-        f = plt.figure(figsize=(20, 10), dpi=50)
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
         supplier_ids = database.get_all_col_record_in_table('supplier', 0)
         results = database.values_consumed_by_suppliers_or_areas([{'area_id': supplier_ids}], "water_consumption")
         labels = database.get_all_col_record_in_table('supplier', 1)
@@ -314,14 +370,17 @@ class FrameChartWinChart:
             values.append(result[1])
 
         plt.bar(labels, values)
-        plt.title(self.c_type[1])
+        plt.xlabel("Suppliers")
+        plt.ylabel("Amount of water")
+        plt.title("Water supplied of each supplier")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
     def draw_chart_bill_money_area(self):
-        f = plt.figure(figsize=(20, 10), dpi=50)
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
         area_ids = database.get_all_col_record_in_table('area', 0)
         results = database.values_consumed_by_suppliers_or_areas([{'area_id': area_ids}], "total_money")
         labels = database.get_all_col_record_in_table('area', 1)
@@ -331,14 +390,17 @@ class FrameChartWinChart:
             values.append(result[1])
 
         plt.bar(labels, values)
-        plt.title(self.c_type[1])
+        plt.xlabel("Areas")
+        plt.ylabel("Amount of money")
+        plt.title("Money spent in each area")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
     def draw_chart_bill_money_supplier(self):
-        f = plt.figure(figsize=(20, 10), dpi=50)
+        f = plt.figure(figsize=(15, 6), dpi=60)
+        f.patch.set_facecolor('#ffcccc')
         supplier_ids = database.get_all_col_record_in_table('supplier', 0)
         results = database.values_consumed_by_suppliers_or_areas([{'area_id': supplier_ids}], "total_money")
         labels = database.get_all_col_record_in_table('supplier', 1)
@@ -348,7 +410,9 @@ class FrameChartWinChart:
             values.append(result[1])
 
         plt.bar(labels, values)
-        plt.title(self.c_type[1])
+        plt.xlabel("Suppliers")
+        plt.ylabel("Amount of money")
+        plt.title("Money gain in each supplier")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
@@ -363,12 +427,16 @@ class WinCharts:
     def __init__(self, root):
         self.root = root
 
-        self.win_charts = Toplevel(self.root, bg="#ffcccc")
+        self.win_charts = Toplevel(self.root)
+        self.win_charts.geometry("1000x600")
         self.win_charts.title('Charts Things')
-        center_window(self.win_charts, 1000, 600)
+        self.win_charts.resizable(False, False)
+        self.chart_bg = ImageTk.PhotoImage(Image.open("images//Chart_admin.png").resize((1000, 600), Image.ANTIALIAS))
+        self.frame = Label(self.win_charts, image=self.chart_bg, bg="white", relief=FLAT)
+        self.frame.place(x=0, y=0)
 
-        self.fr_select = FrameSelectWinChart(self.win_charts)
-        self.fr_chart = FrameChartWinChart(self.win_charts)
+        self.fr_select = FrameSelectWinChart(self.win_charts, self.frame)
+        self.fr_chart = FrameChartWinChart(self.win_charts, self.frame)
 
     def draw(self):
         cbx_values = ['employee', 'household', 'area', 'billing']
@@ -394,19 +462,23 @@ class FrameFeatures:
 
     def draw(self):
         # Button Add
-        self.btn_add = Button(self.frame_features, text='Add', width=12, height=1, bg="#ffb3cb", command=self.add)
+        self.btn_add = Button(self.frame_features, text='Add', width=12, height=1, bg="#ffb3cb",
+                              command=self.add)
         self.btn_add.grid(row=0, column=0, padx=5, pady=5)
 
         # Button Update
-        self.btn_update = Button(self.frame_features, text='Update', width=12, height=1, bg="#ffb3cb", command=self.update)
+        self.btn_update = Button(self.frame_features, text='Update', width=12, height=1, bg="#ffb3cb",
+                                 command=self.update)
         self.btn_update.grid(row=0, column=1, padx=5, pady=5)
 
         # Button Delete
-        self.btn_delete = Button(self.frame_features, text='Delete', width=12, height=1, bg="#ffb3cb", command=self.delete)
+        self.btn_delete = Button(self.frame_features, text='Delete', width=12, height=1, bg="#ffb3cb",
+                                 command=self.delete)
         self.btn_delete.grid(row=0, column=2, padx=5, pady=5)
 
         # Button Charts
-        self.btn_charts = Button(self.frame_features, text='Chart', width=12, height=1, bg="#ffb3cb", command=self.charts)
+        self.btn_charts = Button(self.frame_features, text='Chart', width=12, height=1, bg="#ffb3cb",
+                                 command=self.charts)
         self.btn_charts.grid(row=0, column=3, padx=5, pady=5)
 
     def add(self):
@@ -429,9 +501,9 @@ class FrameFeatures:
 class WinSearchResults:
     def __init__(self, root):
         self.root = root
-        self.win_search_results = Toplevel(self.root)
+        self.win_search_results = Toplevel(self.root, bg="#ffe6ee")
         self.win_search_results.title('Search Results')
-        center_window(self.win_search_results, 700, 400)
+        center_window(self.win_search_results, 700, 250)
         self.table_results = ttk.Treeview()
 
     def draw(self, table, by_column, opt, txt):
@@ -576,48 +648,67 @@ class FrameTable:
 
 
 class FrameSetting:
-    def __init__(self, frame, username):
-        # self.root = root
-        # self.win_sett = Toplevel(self.root)
-        # self.win_sett.title('Change Password')
-        # center_window(self.win_sett, 300, 150)
-        self.fr_sett = frame
-        self.profile = LabelFrame()
+    def __init__(self, root, username):
+        self.root = root
+        self.setting_frame = LabelFrame()
         self.username = username
         self.entries = []
+        self.image_fr = ImageTk.PhotoImage(Image.open("images//Change_pass_admin.png")
+                                           .resize((882, 475), Image.ANTIALIAS))
+        self.sub_btn = ImageTk.PhotoImage(Image.open("images//Sub_btn_admin.png").resize((90, 30), Image.ANTIALIAS))
         self.draw()
 
     def draw(self):
-        self.profile = LabelFrame(self.fr_sett, text='Change Password', bg="#ffe6ee")
-        self.profile.place(x=330, y=50)
+        # self.profile = LabelFrame(self.fr_sett, text='Change Password', bg="#ffe6ee")
+        # self.profile.place(x=330, y=50)
+        # record = database.search_exact('adminlogin', 'username', self.username)[0]
+        # cols = database.get_col('adminlogin')
+        self.setting_frame = Label(self.root, image=self.image_fr, bg="white", relief=FLAT)
+        self.setting_frame.place(x=300, y=126)
+
         record = database.search_exact('adminlogin', 'username', self.username)[0]
-        cols = database.get_col('adminlogin')
 
-        row_id = 0
-        for col in cols:
-            lb = Label(self.profile, text=col, bg="#ffe6ee")
-            lb.grid(row=row_id, column=0, padx=5, pady=5)
-            en = Entry(self.profile)
-            en.insert(0, record[row_id])
-            self.entries.append(en)
-            if row_id == 0:
-                en['state'] = DISABLED
-            en.grid(row=row_id, column=1, padx=5, pady=5)
+        user_entry = Entry(self.setting_frame, relief="flat", width=21, font=("Calibri", 12), bg="#f9cbdf")
+        user_entry.place(x=340, y=180)
+        user_entry.insert(0, record[0])
+        user_entry['state'] = DISABLED
+        self.entries.append(user_entry)
 
-            row_id += 1
+        pass_entry = Entry(self.setting_frame, relief="flat", width=21, font=("Calibri", 12), bg="#f9cbdf")
+        pass_entry.place(x=340, y=260)
+        pass_entry.insert(0, record[1])
+        self.entries.append(pass_entry)
 
-        btn_submit = Button(self.profile, text='submit', command=self.submit, bg="#ffe6ee")
-        btn_submit.grid(row=row_id, column=0, columnspan=2, padx=5, pady=5)
+        # row_id = 0
+        # for col in cols:
+        #     lb = Label(self.profile, text=col, bg="#ffe6ee")
+        #     lb.grid(row=row_id, column=0, padx=5, pady=5)
+        #     en = Entry(self.profile)
+        #     en.insert(0, record[row_id])
+        #     self.entries.append(en)
+        #     if row_id == 0:
+        #         en['state'] = DISABLED
+        #     en.grid(row=row_id, column=1, padx=5, pady=5)
+        #
+        #     row_id += 1
+
+        btn_submit = Button(self.setting_frame, image=self.sub_btn, command=self.submit, relief=FLAT, bg="#f9cbdf",
+                            activebackground="#f9cbdf")
+        btn_submit.place(x=390, y=330)
 
     def submit(self):
         records = []
         for entry in self.entries:
             records.append(entry.get())
 
-        database.delete_row('adminlogin', records[0])
-        database.insert_gui('adminlogin', tuple(records))
+        database.update('adminlogin', records, records[0])
+
+        # database.delete_row('adminlogin', records[0])
+        # database.insert_gui('adminlogin', tuple(records))
 
         print("To be Update: ", 'adminlogi ', records)
+
+        messagebox.showinfo(title=None, message='Changing Password Successfully')
 
 
 class AdminWindow:
@@ -629,7 +720,7 @@ class AdminWindow:
         self.admin_win.title('Welcome back: Admin!')
         self.fr_result = LabelFrame()
         # =======================Set background image=====================
-        image_bg = ImageTk.PhotoImage(Image.open("images//Admin_bg-01.png").resize((1300, 720), Image.ANTIALIAS))
+        image_bg = ImageTk.PhotoImage(Image.open("images//Admin_bg.png").resize((1300, 720), Image.ANTIALIAS))
         canvas = Canvas(self.admin_win)
         canvas.pack(fill="both", expand=True)
         canvas.create_image(0, 0, image=image_bg, anchor="nw")
@@ -708,7 +799,7 @@ class AdminWindow:
 
     def click_manage(self):
         self.draw()
-        table_names = ['supplier', 'household', 'employee', 'billing', 'area', 'service']
+        table_names = ['supplier', 'household', 'employee', 'address', 'billing', 'area', 'service', 'servicetype']
 
         frame_tables = FrameTable(self.fr_result, table_names)
 
@@ -722,7 +813,7 @@ class AdminWindow:
 
     def click_setting(self):
         self.draw()
-        FrameSetting(self.fr_result, self.admin_id)
+        FrameSetting(self.admin_win, self.admin_id)
 
     def click_logout(self):
         from water import Login
@@ -738,4 +829,4 @@ class AdminWindow:
 
 
 if __name__ == '__main__':
-    AdminWindow('emp1')
+    AdminWindow('admin')

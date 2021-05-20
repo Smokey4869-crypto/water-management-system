@@ -85,14 +85,14 @@ class Database:
         self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", data)
         self.db.commit()
 
-    def update_value(self, table, changes, condition):
-        # change and condition in the form of a list
-        # ex : change: [ {emp_id: 1}, {hel: 2}], condition: [area_id, 21]
+    def update(self, table, changes, id_):
         try:
-            for change in changes:
-                for key, value in change.items():
-                    self.cursorObj.execute(f'UPDATE {table} SET {key} = {value} where {condition[0]} = {condition[1]}')
-                    self.db.commit()
+            columns = self.get_col(table)
+            for i in range(len(changes)):
+                key = columns[i]
+                value = changes[i]
+                self.cursorObj.execute(f"UPDATE {table} SET {key} = '{value}' where {columns[0]} LIKE '{id_}'")
+                self.db.commit()
         except Error as e:
             return e
 
@@ -324,10 +324,10 @@ class Database:
         return months, amount_of_money
 
     def get_customer_info(self):
-        self.cursorObj.execute("""SELECT household.household_id, household.household_owner, area.areaname,
-                                address.address_name FROM household 
-                                INNER JOIN address ON household.address_id = address.address_id 
-				                INNER JOIN area ON area.area_id = address.area_id""")
+        self.cursorObj.execute("SELECT household.household_id, household.household_owner, area.areaname,"
+                               "address.address_name FROM household "
+                               "INNER JOIN address ON household.address_id = address.address_id "
+                               "INNER JOIN area ON area.area_id = address.area_id")
         results = self.cursorObj.fetchall()
         return results
 
@@ -340,6 +340,74 @@ class Database:
             return result
         except Error as e:
             return e
+
+    def average_money_by_address(self, list):
+        self.cursorObj.execute(
+            "select address.address_id,round(avg(total_money),2) as average_money from billing,household,address "
+            "where household.household_id=billing.household_id and address.address_id=household.address_id "
+            "group by household.address_id;")
+        result = self.cursorObj.fetchall()
+        print(result)
+        final_results = []
+        for i in list:
+            for j in result:
+                if i == j[0]:
+                    final_results.append((i, j[1]))
+
+        return final_results
+
+    def average_money_by_household(self,list):
+        self.cursorObj.execute(
+            "select household.household_id,round(avg(total_money),2) from billing,household  "
+            "where household.household_id=billing.household_id "
+            "group by billing.household_id;")
+        result = self.cursorObj.fetchall()
+        final_results = []
+        for i in list:
+            for j in result:
+                if i == j[0]:
+                    final_results.append((i, j[1]))
+
+        return final_results
+
+    def average_water_by_address(self,list):
+        self.cursorObj.execute(
+            "select address.address_id,round(avg(water_consumption),2) as average_money from billing,household,address "
+            "where household.household_id=billing.household_id and address.address_id=household.address_id "
+            "group by household.address_id;")
+        result = self.cursorObj.fetchall()
+        final_results = []
+        for i in list:
+            for j in result:
+                if i == j[0]:
+                    final_results.append((i, j[1]))
+
+        return final_results
+
+    def average_water_by_household(self,list):
+        self.cursorObj.execute(
+            "select household.household_id,round(avg(water_consumption),2) from billing,household "
+            "where household.household_id=billing.household_id "
+            "group by billing.household_id;")
+        result = self.cursorObj.fetchall()
+        final_results = []
+        for i in list:
+            for j in result:
+                if i == j[0]:
+                    final_results.append((i, j[1]))
+
+        return final_results
+
+    def max_billing(self):
+        self.cursorObj.execute("select max(billing_id) from billing")
+        result = self.cursorObj.fetchone()
+        return result[0]
+
+    def view_bill(self):
+        self.cursorObj.execute("SELECT *, CASE WHEN is_paid = 1 THEN 'Yes' ELSE 'No' END as paid FROM billing")
+        results = self.cursorObj.fetchall()
+        return results
+
 
 def main():
     db = Database(filename='water.db')
