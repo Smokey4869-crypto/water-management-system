@@ -26,7 +26,8 @@ class WinAdd:
         self.entries = []
         self.win_add = Toplevel(self.root)
         self.win_add.title('Adding Things')
-        self.win_add.geometry("400x400")
+        center_window(self.win_add, 400, 400)
+        # self.win_add.geometry("400x400")
         self.win_add.resizable(False, False)
         self.add_bg = ImageTk.PhotoImage(Image.open("images//WinAddUpdate_admin.png")
                                          .resize((400, 400), Image.ANTIALIAS))
@@ -88,7 +89,8 @@ class WinUpdate:
         self.entries = []
         self.win_update = Toplevel(self.root)
         self.win_update.title('Update Things')
-        self.win_update.geometry("400x400")
+        center_window(self.win_update, 400, 400)
+        # self.win_update.geometry("400x400")
         self.win_update.resizable(False, False)
         self.frame = Label()
         self.add_bg = ImageTk.PhotoImage(Image.open("images//WinAddUpdate_admin.png")
@@ -428,7 +430,8 @@ class WinCharts:
         self.root = root
 
         self.win_charts = Toplevel(self.root)
-        self.win_charts.geometry("1000x600")
+        center_window(self.win_charts, 1000, 600)
+        # self.win_charts.geometry("1000x600")
         self.win_charts.title('Charts Things')
         self.win_charts.resizable(False, False)
         self.chart_bg = ImageTk.PhotoImage(Image.open("images//Chart_admin.png").resize((1000, 600), Image.ANTIALIAS))
@@ -715,7 +718,8 @@ class AdminWindow:
     def __init__(self, admin):
         self.admin_id = admin
         self.admin_win = Tk()
-        self.admin_win.geometry("1300x720")
+        center_window(self.admin_win, 1300, 720)
+        # self.admin_win.geometry("1300x720")
 
         self.admin_win.title('Welcome back: Admin!')
         self.fr_result = LabelFrame()

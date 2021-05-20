@@ -11,6 +11,13 @@ from db import Database
 database = Database("water_database.db")
 
 
+def center_window(root, width, height):
+    positionRight = int(root.winfo_screenwidth() / 2 - width / 2)
+    positionDown = int(root.winfo_screenheight() / 2 - height / 2 - 60)
+
+    root.geometry("%dx%d+%d+%d" % (width, height, positionRight, positionDown))
+
+
 class FrameSetting:
     def __init__(self, root, username):
         self.root = root
@@ -81,7 +88,8 @@ class Customers:
 
         self.root = Tk()
         self.root.title("Welcome " + self.username)
-        self.root.geometry("1300x720")
+        center_window(self.root, 1300, 720)
+        # self.root.geometry("1300x720")
 
         self.frame1 = Frame()
         self.frame2 = Frame()

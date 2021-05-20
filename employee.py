@@ -27,7 +27,8 @@ class WinAdd:
         self.labels = []
         self.entries = []
         self.winAdd.title('Adding Things')
-        self.winAdd.geometry("400x400")
+        center_window(self.winAdd, 400, 400)
+        # self.winAdd.geometry("400x400")
         self.winAdd.resizable(False, False)
         self.frame = Label()
         self.add_bg = ImageTk.PhotoImage(Image.open("images//WinAddUpdate_emp.png").resize((400, 400), Image.ANTIALIAS))
@@ -94,7 +95,8 @@ class WinUpdate:
 
         self.win_update = Toplevel(root)
         self.win_update.title("Update Things")
-        self.win_update.geometry("400x400")
+        center_window(self.win_update, 400, 400)
+        # self.win_update.geometry("400x400")
         self.win_update.resizable(False, False)
         self.frame = Label()
         self.add_bg = ImageTk.PhotoImage(Image.open("images//WinAddUpdate_emp.png").resize((400, 400), Image.ANTIALIAS))
@@ -394,8 +396,8 @@ class WinCharts:
         self.root = root
         self.emp = emp
         self.win_chart = Toplevel(root)
-        # center_window(self.win_chart, 400, 400)
-        self.win_chart.geometry("600x600")
+        center_window(self.win_chart, 600, 600)
+        # self.win_chart.geometry("600x600")
         self.win_chart.title("Chart Chart Chart")
         self.win_chart.resizable(False, False)
         self.chart_bg = ImageTk.PhotoImage(Image.open("images//Chart_emp-01.png").resize((600, 600), Image.ANTIALIAS))
@@ -707,7 +709,8 @@ class EmployeeWindow:
         self.emp = database.search_exact('employee', 'employee_id', emp_id)[0]
         self.emp_win = Tk()
 
-        self.emp_win.geometry("1300x720")
+        # self.emp_win.geometry("1300x720")
+        center_window(self.emp_win, 1300, 720)
         self.emp_win.title('Welcome back: ' + self.emp[1] + '!')
         # =======================Set background image=====================
         image = ImageTk.PhotoImage(Image.open("images//Employee_bg.png").resize((1300, 720), Image.ANTIALIAS))
