@@ -2,10 +2,14 @@ from tkinter import *
 from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
 from PIL import ImageTk, Image
+from datetime import datetime
 import sqlite3
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkcalendar import *
 import math
+from db import Database
+
+database = Database("water.db")
 
 
 class Customers:
@@ -20,7 +24,7 @@ class Customers:
         self.root.geometry("1300x720")
 
         # Connect database
-        self.database = sqlite3.connect('my_water.db')
+        self.database = sqlite3.connect('water.db')
         self.cursor = self.database.cursor()
 
         # Create a style for notebook
@@ -92,7 +96,7 @@ class Customers:
 
         # Log out button
         logout_btn = Button(panel, text="Log Out", command=self.click_logout, relief=FLAT,
-                            font=("arial", 10), bg='white', fg="#005580")
+                            font=("arial", 10), bg='white', fg="#005580", activebackground="white")
         logout_btn.place(x=720, y=6)
 
         self.click_home()
@@ -209,7 +213,7 @@ class Customers:
         fig1.patch.set_facecolor('#ccf3ff')
         canvas1 = FigureCanvasTkAgg(fig1, master=self.frame1)
 
-        average_amount, total_amount = self.water_consumed(year)
+        average_amount, total_amount = self.chart_water_consumed(year)
         plt.legend(['Average'])
 
         canvas1.draw()
@@ -226,9 +230,10 @@ class Customers:
     def view_money_paid(self, year):
         # Plot
         fig2 = plt.figure(figsize=(5, 5), dpi=80, tight_layout={'pad': 1})
+        fig2.patch.set_facecolor('#ccf3ff')
         canvas2 = FigureCanvasTkAgg(fig2, master=self.frame2)
 
-        average_amount, total_amount = self.money_consumed(year)
+        average_amount, total_amount = self.chart_money_consumed(year)
         plt.legend(['Average'])
 
         canvas2.draw()
@@ -359,14 +364,15 @@ class Customers:
         fig2 = plt.figure(figsize=(4, 2), dpi=80, tight_layout={'pad': 1})
         fig2.patch.set_facecolor('#e7f5fd')
         canvas2 = FigureCanvasTkAgg(fig2, master=water_frame)
-        self.water_consumed("2021")
+        self.chart_water_consumed("2021")
         canvas2.draw()
         canvas2.get_tk_widget().place(x=0, y=0)
 
         # ==========================Calendar============================================
         cal_frame = LabelFrame(home_frame, width=240, height=180, bg="#e7f5fd", relief=FLAT)
         cal_frame.place(x=70, y=250)
-        cal = Calendar(cal_frame, selectmode="day", year=2021, month=5, day=15, showweeknumbers=False,
+        date = str(datetime.date(datetime.now()))
+        cal = Calendar(cal_frame, selectmode="day", year=int(date[0:4]), month=int(date[5:7]), day=int(date[8:]), showweeknumbers=False,
                        background="#e7f5fd", foreground='black', bordercolor="white",
                        headersbackground="white", headersforeground='#1a53ff',
                        selectbackground="#ccf3ff", selectforeground="black")
@@ -379,20 +385,12 @@ class Customers:
         fig2 = plt.figure(figsize=(4, 2), dpi=80, tight_layout={'pad': 1})
         fig2.patch.set_facecolor('#e7f5fd')
         canvas2 = FigureCanvasTkAgg(fig2, master=money_frame)
-        self.money_consumed("2021")
+        self.chart_money_consumed("2021")
         canvas2.draw()
         canvas2.get_tk_widget().place(x=0, y=0)
 
-    def money_consumed(self, year):
-        self.cursor.execute("SELECT * FROM billing")
-        data = self.cursor.fetchall()
-        amount_of_money = []
-        months = []
-        for record in data:
-            if record[1] == self.id:
-                if record[3][0:4] == year:
-                    amount_of_money.append(record[5])
-                    months.append(record[3][5:7])
+    def chart_money_consumed(self, year):
+        months, amount_of_money = database.money_consumed_per_month_by_year(self.id, year)
         total_amount = 0
         for i in range(len(amount_of_money)):
             total_amount += amount_of_money[i]
@@ -406,16 +404,8 @@ class Customers:
 
         return average_amount, total_amount
 
-    def water_consumed(self, year):
-        self.cursor.execute("SELECT * FROM billing")
-        data = self.cursor.fetchall()
-        water_amounts = []
-        months = []
-        for record in data:
-            if record[1] == self.id:
-                if record[3][0:4] == year:
-                    water_amounts.append(record[2])
-                    months.append(record[3][5:7])
+    def chart_water_consumed(self, year):
+        months, water_amounts = database.water_consumed_per_month_by_year(self.id, year)
         total_amount = 0
         for i in range(len(water_amounts)):
             total_amount += water_amounts[i]
@@ -430,18 +420,13 @@ class Customers:
         return average_amount, total_amount
 
 
-
-def window(id):
-    database = sqlite3.connect('my_water.db')
-    c = database.cursor()
-    c.execute("""SELECT household.household_id, household.household_owner, area.areaname, household.address 
-                 FROM household
-                 INNER JOIN area ON household.area_id = area.area_id;""")
-    data = c.fetchall()
+def CustomerWin(id):
+    data = database.get_customer_info()
     for record in data:
         if record[0] == id:
             Customers(record[0], record[1], record[2], record[3])
 
 
 if __name__ == '__main__':
-    window(3)
+    CustomerWin(3)
+

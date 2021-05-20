@@ -34,26 +34,14 @@ class Database:
         except Error as e:
             return e
 
-    def insert_txt(self):
-        try:
-            self.values = 800
-            self.data = [(11, self.values, datetime.date(2017, 1, 2), datetime.date(2017, 3, 2), self.values * 20)]
-            self.cursorObj.executemany("INSERT INTO billing VALUES(?,?,?,?,?)", self.data)
-            self.db.commit()
-        except Error as e:
-            return e
-
-    def browse_table(self, table):
-        try:
-            self.cursorObj.execute("SELECT * FROM %s ORDER BY 1 ASC;" % table)
-            colnames = [desc[0] for desc in self.cursorObj.description]
-            results = self.cursorObj.fetchall()
-            rows = []
-            for result in results:
-                rows.append(list(result))
-            return colnames, rows
-        except Error as e:
-            return e
+    def browse_table(self, table_name):
+        self.cursorObj.execute("SELECT * FROM %s ORDER BY 1 ASC;" % table_name)
+        colnames = [desc[0] for desc in self.cursorObj.description]
+        results = self.cursorObj.fetchall()
+        rows = []
+        for result in results:
+            rows.append(list(result))
+        return colnames, rows
 
     def insert_gui(self, table, data):
         # data in the form of tuple
@@ -64,46 +52,38 @@ class Database:
         except Error as e:
             return e
 
-    def delete_row(self, table, conditions):
-        # delete_row('household', [{'household_id': [1, 2]}]
+    def get_col_type(self, table_name):
+        query = "pragma table_info({})".format(table_name)
+        results = self.cursorObj.execute(query).fetchall()
+        rows = []
+        for result in results:
+            rows.append(result[2])
+        return rows
+
+    def get_col(self, table_name):
+        self.cursorObj.execute('SELECT * FROM {}'.format(table_name))
+        names = list(map(lambda x: x[0], self.cursorObj.description))
+        return names
+
+    def get_all_col_record_in_table(self, tablename, col):
+        self.cursorObj.execute(f'SELECT * from {tablename}')
+        records = self.cursorObj.fetchall()
+        results = []
+        for record in records:
+            results.append(record[col])
+        return results
+
+    def show_table(self, table):
         try:
-            for condition in conditions:
-                for key, value in condition.items:
-                    command = f"DELETE FROM {table} WHERE {key} LIKE '{value}'"
-                    self.cursorObj.execute(command)
-                    self.db.commit()
+            self.cursorObj.execute(f"SELECT * FROM {table}")
+            return self.cursorObj.fetchall()
         except Error as e:
             return e
 
-    def get_col_type(self, table):
-        try:
-            query = "pragma table_info({})".format(table)
-            results = self.cursorObj.execute(query).fetchall()
-            rows = []
-            for result in results:
-                rows.append(result[2])
-            return rows
-        except Error as e:
-            return e
-
-    def get_col(self, table):
-        try:
-            self.cursorObj.execute('SELECT * FROM {}'.format(table))
-            names = list(map(lambda x: x[0], self.cursorObj.description))
-            return names
-        except Error as e:
-            return e
-
-    def get_all_col_record_in_table(self, table, col):
-        try:
-            self.cursorObj.execute(f'SELECT * from {table}')
-            records = self.cursorObj.fetchall()
-            results = []
-            for record in records:
-                results.append(record[col])
-            return results
-        except Error as e:
-            return e
+    def insert_area(self, area_id, name, emp_id):
+        data = [(int(area_id), name, int(emp_id))]
+        self.cursorObj.executemany("INSERT INTO area VALUES(?,?,?)", data)
+        self.db.commit()
 
     def update_value(self, table, changes, condition):
         # change and condition in the form of a list
@@ -139,6 +119,22 @@ class Database:
         except Error as e:
             return e
 
+    def delete_row(self, table_name, id):
+        columns = self.get_col(table_name)
+        self.cursorObj.execute(f"DELETE FROM {table_name} WHERE {columns[0]} LIKE '{id}'")
+        self.db.commit()
+
+    def delete_rows(self, table, conditions):
+        # delete_row('household', [{'household_id': [1, 2]}]
+        try:
+            for condition in conditions:
+                for key, value in condition.items:
+                    command = f"DELETE FROM {table} WHERE {key} LIKE '{value}'"
+                    self.cursorObj.execute(command)
+                    self.db.commit()
+        except Error as e:
+            return e
+
     def get_water_company_name(self, customer_id):
         self.cursorObj.execute("SELECT supplier_name from supplier,"
                                "household,billing WHERE household.household_id=billing.household_id "
@@ -149,7 +145,6 @@ class Database:
         return result
 
     # print bill
-
     def get_information_bill(self, household_id):
         self.cursorObj.execute(
             "SELECT * from billing WHERE household_id = '{}'".format(household_id))
@@ -210,16 +205,26 @@ class Database:
         except Error as e:
             return e
 
+    def num_area_of_suppliers(self, suppliers):
+        try:
+            result = []
+            for supplier in suppliers:
+                command = f"SELECT SUM(CASE WHEN supplier_id = \'{supplier}\' THEN 1 ELSE 0 END) FROM area"
+                for row in self.cursorObj.execute(command):
+                    result.append(row[0])
+            return result
+        except Error as e:
+            print(e)
+
     def num_of_value(self, table, conditions):
-        # num_of-value(area, [{'supplier_id': [1, 2]}])
         try:
             result = []
             for condition in conditions:
                 for key, values in condition.items():
                     for value in values:
-                        command = f"SELECT {key}, SUM(CASE WHEN {key} = \'{value}\' THEN 1 ELSE 0 END) FROM {table}"
+                        command = f"SELECT SUM(CASE WHEN {key} = \'{value}\' THEN 1 ELSE 0 END) FROM {table}"
                         for row in self.cursorObj.execute(command):
-                            result.append(row)
+                            result.append(row[0])
             return result
         except Error as e:
             return e
@@ -258,17 +263,86 @@ class Database:
         except Error as e:
             return e
 
-    def table_total_value(self, table):
+    def total_num(self, table):
+        self.cursorObj.execute(f"SELECT COUNT(*) FROM {table}")
+        result = self.cursorObj.fetchone()
+        return result[0]
+
+    def total_household_by_area(self, id):
+        self.cursorObj.execute(f"""select count(household_owner), area.areaname from household 
+                               inner join address on household.address_id = address.address_id 
+                               inner join area on address.area_id = area.area_id 
+                               where area.area_id = {id}""")
+        result = self.cursorObj.fetchone()
+        return result
+
+    def total_area_by_supplier(self):
+        self.cursorObj.execute("select supplier_name, count(distinct area.areaname) as total_district_supply "
+                               "from supplier, area, address "
+                               "where area.area_id = address.area_id "
+                               "and area.supplier_id = supplier.supplier_id "
+                               "group by area.supplier_id")
+        result = self.cursorObj.fetchall()
+        return result
+
+    def total_employee_by_area(self, id):
+        self.cursorObj.execute(f"select count(*) from employee where area_id = {id}")
+        result = self.cursorObj.fetchone()
+        return result
+
+    def total_household_not_paid(self, id):
+        self.cursorObj.execute("select area.areaname, count(is_paid) as total from household "
+                               "inner join address on household.address_id = address.address_id "
+                               "inner join area on address.area_id = area.area_id "
+                               "inner join billing on billing.household_id = household.household_id "
+                               f"where area.area_id = {id} and billing.is_paid=0")
+        result = self.cursorObj.fetchone()
+        return result
+
+    def water_consumed_per_month_by_year(self, id, year):
+        self.cursorObj.execute(f"""SELECT water_consumption, from_date FROM billing 
+                                WHERE household_id = {id}""")
+        data = self.cursorObj.fetchall()
+        water_amounts = []
+        months = []
+        for record in data:
+            if record[1][0:4] == year:
+                water_amounts.append(record[0])
+                months.append(record[1][5:7])
+        return months, water_amounts
+
+    def money_consumed_per_month_by_year(self, id, year):
+        self.cursorObj.execute(f"""SELECT total_money, from_date FROM billing 
+                                WHERE household_id = {id}""")
+        data = self.cursorObj.fetchall()
+        amount_of_money = []
+        months = []
+        for record in data:
+            if record[1][0:4] == year:
+                amount_of_money.append(record[0])
+                months.append(record[1][5:7])
+        return months, amount_of_money
+
+    def get_customer_info(self):
+        self.cursorObj.execute("""SELECT household.household_id, household.household_owner, area.areaname,
+                                address.address_name FROM household 
+                                INNER JOIN address ON household.address_id = address.address_id 
+				                INNER JOIN area ON area.area_id = address.area_id""")
+        results = self.cursorObj.fetchall()
+        return results
+
+    def column_unique(self, table, column):
         try:
-            self.cursorObj.execute(f"SELECT COUNT(*) FROM {table}")
-            result = self.cursorObj.fetchone()
-            return result[0]
+            result = []
+            command = f"""SELECT DISTINCT({column}) FROM {table}"""
+            for value in self.cursorObj.execute(command):
+                result.append(value[0])
+            return result
         except Error as e:
             return e
 
-
 def main():
-    db = Database(filename='water_database.db')
+    db = Database(filename='water.db')
     # db.get_information_bill(1)
     # db.total_amount_of_water_by_area()
     # err = db.search("household", "hello", "10")
@@ -276,19 +350,25 @@ def main():
     # db.update_value('supplier', ['supplier_name', 'CompFive'], ['supplier_id', '5'])
     # db.delete_row('supplier', 'supplier_id', [13, 12])
     # print(db.get_col_type('billing'))
-    # print(db.value_consumed_by_suppliers_or_areas([{'area_id': [1, 2, 3]}], "water_consumption"))
+    # print(db.value_consumed_by_suppliers_or_areas([{'adress_id': [1, 2, 3]}], "water_consumption"))
     # print(db.value_consumed_by_household(year='2021', month='1'))
     # print(db.value_consumed_by_household(year='2020'))
     # print(db.value_consumed_by_household())
     # print(db.water_consumed_by_area([1, 2, 3, 4]))
-    # print(db.value_consumed_by_suppliers_or_areas([{"supplier_id": [1, 2]}]))
-    # print(db.browse_table('household'))
-
     # print(db.num_emp_gender('F'))
     # print(db.num_emp_role('director'))
-    # print(db.num_households_in_area([1, 2, 3, 15]))
+    # print(db.num_households_in_area('4'))
     # print(db.num_area_of_suppliers([1, 2, 3]))
-    print(db.num_of_value('area', [{'supplier_id': [1, 2]}]))
+    # print(db.search_exact('employee', 'employee_id', 'emp1'))
+    # print(db.search_exact('household', 'address_id', 1))
+    # print(db.total_supplier_by_area())
+    # print(db.total_employee_by_area())
+    # print(db.get_all_col_record_in_table('area', 0))
+    # print(db.get_all_col_record_in_table('area', 1))
+    # print(db.total_household_by_area(2))
+    # print(db.total_employee_by_area(10)[0])
+    # print(db.total_household_not_paid(1))
+    # print(db.get_customer_info())
 
 
 if __name__ == '__main__':
