@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from PIL import ImageTk, Image
 
 
-database = Database("water_database.db")
+database = Database("database/water_database.db")
 
 
 def center_window(root, width, height):
@@ -141,9 +141,6 @@ class WinUpdate:
 
         database.update(table_name, records, records[0])
 
-        # database.delete_row(table_name, records[0])
-        # database.insert_gui(table_name, tuple(records))
-
         self.frame_table.redraw()
 
         print("To be Update: ", table_name, records)
@@ -171,9 +168,8 @@ class WinDelete:
 
 
 class FrameSelectWinChart:
-    def __init__(self, root, frame):
+    def __init__(self, root):
         self.root = root
-        self.frame = frame
         self.fr_select = LabelFrame()
         self.cbx_values = []
         self.lb_select = Label()
@@ -184,7 +180,7 @@ class FrameSelectWinChart:
         self.btn_done = Button()
 
     def draw(self, fr_chart, cbx_values):
-        self.fr_select = LabelFrame(self.frame, bg="#ffcccc", relief=FLAT)
+        self.fr_select = LabelFrame(self.root, bg="#ffcccc", relief=FLAT)
         self.fr_select.place(x=50, y=40)
         self.cbx_values = cbx_values
         self.lb_select = Label(self.fr_select, text="Get Info About", bg="#ffcccc")
@@ -206,9 +202,6 @@ class FrameSelectWinChart:
                                command=lambda: fr_chart.draw([self.cbx_select.get(), self.cbx_type.get()]))
         self.btn_show.grid(row=1, column=3, padx=5, pady=5)
 
-        self.btn_done = Button(self.fr_select, text="Done", command=self.done, bg="#ffcccc")
-        self.btn_done.grid(row=1, column=4, padx=5, pady=5)
-
     def change_cbx_type(self, selection):
         if selection == 'employee':
             self.cbx_type['values'] = ['gender (pie chart)', 'gender (bar chart)', 'designation']
@@ -227,16 +220,16 @@ class FrameSelectWinChart:
 
 
 class FrameChartWinChart:
-    def __init__(self, root, frame):
+    def __init__(self, root, fr_select):
         self.root = root
-        self.frame = frame
+        self.fr_select = fr_select
         self.fr_chart = LabelFrame()
         self.c_type = []
 
     def draw(self, c_type):
         plt.close('all')
         self.fr_chart.destroy()
-        self.fr_chart = LabelFrame(self.frame, bg="#ffcccc", relief=FLAT)
+        self.fr_chart = LabelFrame(self.root, bg="#ffcccc", relief=FLAT)
         self.fr_chart.place(x=50, y=180)
         self.c_type = c_type
         if c_type[0] == 'employee':
@@ -433,10 +426,9 @@ class WinCharts:
         self.win_charts.resizable(False, False)
         self.chart_bg = ImageTk.PhotoImage(Image.open("images//Chart_admin.png").resize((1000, 600), Image.ANTIALIAS))
         self.frame = Label(self.win_charts, image=self.chart_bg, bg="white", relief=FLAT)
+        self.fr_select = FrameSelectWinChart(self.win_charts)
+        self.fr_chart = FrameChartWinChart(self.win_charts, self.fr_select)
         self.frame.place(x=0, y=0)
-
-        self.fr_select = FrameSelectWinChart(self.win_charts, self.frame)
-        self.fr_chart = FrameChartWinChart(self.win_charts, self.frame)
 
     def draw(self):
         plt.close()
@@ -660,10 +652,6 @@ class FrameSetting:
         self.draw()
 
     def draw(self):
-        # self.profile = LabelFrame(self.fr_sett, text='Change Password', bg="#ffe6ee")
-        # self.profile.place(x=330, y=50)
-        # record = database.search_exact('adminlogin', 'username', self.username)[0]
-        # cols = database.get_col('adminlogin')
         self.setting_frame = Label(self.root, image=self.image_fr, bg="white", relief=FLAT)
         self.setting_frame.place(x=300, y=126)
 
@@ -680,19 +668,6 @@ class FrameSetting:
         pass_entry.insert(0, record[1])
         self.entries.append(pass_entry)
 
-        # row_id = 0
-        # for col in cols:
-        #     lb = Label(self.profile, text=col, bg="#ffe6ee")
-        #     lb.grid(row=row_id, column=0, padx=5, pady=5)
-        #     en = Entry(self.profile)
-        #     en.insert(0, record[row_id])
-        #     self.entries.append(en)
-        #     if row_id == 0:
-        #         en['state'] = DISABLED
-        #     en.grid(row=row_id, column=1, padx=5, pady=5)
-        #
-        #     row_id += 1
-
         btn_submit = Button(self.setting_frame, image=self.sub_btn, command=self.submit, relief=FLAT, bg="#f9cbdf",
                             activebackground="#f9cbdf")
         btn_submit.place(x=390, y=330)
@@ -703,9 +678,6 @@ class FrameSetting:
             records.append(entry.get())
 
         database.update('adminlogin', records, records[0])
-
-        # database.delete_row('adminlogin', records[0])
-        # database.insert_gui('adminlogin', tuple(records))
 
         print("To be Update: ", 'adminlogi ', records)
 

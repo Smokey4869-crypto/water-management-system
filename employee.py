@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from PIL import ImageTk, Image
 from tkinter import messagebox
 
-database = Database("water_database.db")
+database = Database("database/water_database.db")
 
 
 def center_window(root, width, height):
@@ -177,9 +177,8 @@ class WinDelete:
 
 
 class FrameSelectWinCharts:
-    def __init__(self, win_chart, frame):
+    def __init__(self, win_chart):
         self.win_chart = win_chart
-        self.frame = frame
         self.fr_select = LabelFrame()
         self.lb_select = Label()
         self.cbx_select = ttk.Combobox()
@@ -189,7 +188,7 @@ class FrameSelectWinCharts:
         self.btn_show = Button()
 
     def draw(self, fr_chart, values):
-        self.fr_select = LabelFrame(self.frame, bg="#bfffc0", relief=FLAT)
+        self.fr_select = LabelFrame(self.win_chart, bg="#bfffc0", relief=FLAT)
         self.fr_select.place(x=50, y=50)
 
         self.lb_select = Label(self.fr_select, text="Get Info About", bg="#bfffc0")
@@ -222,9 +221,8 @@ class FrameSelectWinCharts:
 
 
 class FrameChartWinCharts:
-    def __init__(self, root, frame, emp):
+    def __init__(self, root, emp):
         self.root = root
-        self.frame = frame
         self.fr_chart = LabelFrame()
         self.c_type = []
         self.emp = emp
@@ -232,7 +230,7 @@ class FrameChartWinCharts:
     def draw(self, c_type):
         plt.close('all')
         self.fr_chart.destroy()
-        self.fr_chart = LabelFrame(self.frame, bg="#bfffc0", relief=FLAT)
+        self.fr_chart = LabelFrame(self.root, bg="#bfffc0", relief=FLAT)
         self.fr_chart.place(x=60, y=170)
         self.c_type = c_type
 
@@ -398,8 +396,8 @@ class WinCharts:
         self.chart_bg = ImageTk.PhotoImage(Image.open("images//Chart_emp-01.png").resize((600, 600), Image.ANTIALIAS))
         self.frame = Label(self.win_chart, image=self.chart_bg, bg="white", relief=FLAT)
         self.frame.place(x=0, y=0)
-        self.fr_select = FrameSelectWinCharts(self.win_chart, self.frame)
-        self.fr_chart = FrameChartWinCharts(self.win_chart, self.frame, self.emp)
+        self.fr_select = FrameSelectWinCharts(self.win_chart)
+        self.fr_chart = FrameChartWinCharts(self.win_chart, self.emp)
 
         self.draw()
 
@@ -444,19 +442,6 @@ class FrameSetting:
         pass_entry.insert(0, record[1])
         self.entries.append(pass_entry)
 
-        # row_id = 0
-        # for col in cols:
-        #     lb = Label(self.profile, text=col, bg="#ccffcc")
-        #     lb.grid(row=row_id, column=0, padx=5, pady=5)
-        #     en = Entry(self.profile)
-        #     en.insert(0, record[row_id])
-        #     self.entries.append(en)
-        #     if row_id == 0:
-        #         en['state'] = DISABLED
-        #     en.grid(row=row_id, column=1, padx=5, pady=5)
-        #
-        #     row_id += 1
-
         btn_submit = Button(self.setting_frame, image=self.sub_btn, command=self.submit, relief=FLAT, bg="#d1e7c5",
                             activebackground="#d1e7c5")
         btn_submit.place(x=390, y=330)
@@ -468,9 +453,6 @@ class FrameSetting:
 
         print(records)
         database.update('adminlogin', records, records[0])
-
-        # database.delete_row('adminlogin', records[0])
-        # database.insert_gui('adminlogin', tuple(records))
 
         messagebox.showinfo(title=None, message='Changing Password Successfully')
 
@@ -738,7 +720,10 @@ class FrameResultWinEmployee:
         FrameSetting(self.root, self.emp[0])
 
     def exit(self):
-        self.root.destroy()
+        self.root.deiconify()
+        ask = messagebox.askyesnocancel("Confirm Exit", "Are you sure you want to Exit?")
+        if ask is True:
+            self.root.destroy()
 
 
 class EmployeeWindow:

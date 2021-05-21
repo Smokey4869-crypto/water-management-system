@@ -230,7 +230,6 @@ class Database:
             return e
 
     def values_consumed_by_suppliers_or_areas(self, ids, type="water_consumption", year="", month=""):
-        # db.value_consumed_by_suppliers_or_areas([{'supplier_id': [1, 2]}], "total_money")
         try:
             result = []
             for id in ids:
@@ -457,6 +456,7 @@ class Database:
             return e
 
     def view_bill(self):
+<<<<<<< HEAD
         try:
             self.cursorObj.execute("SELECT *, CASE WHEN is_paid = 1 THEN 'Yes' ELSE 'No' END as paid FROM billing")
             results = self.cursorObj.fetchall()
@@ -498,3 +498,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+=======
+        self.cursorObj.execute("SELECT *, CASE WHEN is_paid = 1 THEN 'Yes' ELSE 'No' END as paid FROM billing")
+        results = self.cursorObj.fetchall()
+        return results
+>>>>>>> da37ef2f83d545a58af9f0efd13ba939e3e17443
