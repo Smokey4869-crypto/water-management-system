@@ -271,7 +271,7 @@ class FrameChartWinChart:
         labels = database.column_unique('employee', 'sex')
         values = database.num_of_value('employee', [{'sex': labels}])
 
-        plt.pie(values, labels=['Female', 'Male'], radius=1.5, autopct="%0.2f%%")
+        plt.pie(values, labels=['Male', 'Female'], radius=1.5, autopct="%0.2f%%")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
         canvas.draw()
@@ -820,10 +820,12 @@ class AdminWindow:
         FrameSetting(self.admin_win, self.admin_id)
 
     def click_logout(self):
-        from water import Login
-        self.admin_win.destroy()
-        win = Tk()
-        Login(win)
+        ask = messagebox.askyesnocancel("Confirm Logout", "Are you sure you want to Log Out")
+        if ask is True:
+            from water import Login
+            self.admin_win.destroy()
+            win = Tk()
+            Login(win)
 
     def click_exit(self):
         self.admin_win.deiconify()

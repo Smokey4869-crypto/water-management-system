@@ -399,10 +399,12 @@ class Customers:
             count += 1
 
     def click_logout(self):
-        from water import Login
-        self.root.destroy()
-        win = Tk()
-        Login(win)
+        ask = messagebox.askyesnocancel("Confirm Logout", "Are you sure you want to Log Out")
+        if ask is True:
+            from water import Login
+            self.root.destroy()
+            win = Tk()
+            Login(win)
 
     def click_exit(self):
         self.root.deiconify()

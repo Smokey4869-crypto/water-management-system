@@ -740,10 +740,12 @@ class EmployeeWindow:
         self.fr_result.home()
 
     def logout(self):
-        from water import Login
-        self.emp_win.destroy()
-        win = Tk()
-        Login(win)
+        ask = messagebox.askyesnocancel("Confirm Logout", "Are you sure you want to Log Out")
+        if ask is True:
+            from water import Login
+            self.emp_win.destroy()
+            win = Tk()
+            Login(win)
 
 
 if __name__ == '__main__':
