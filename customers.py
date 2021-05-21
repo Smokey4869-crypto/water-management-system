@@ -8,7 +8,7 @@ from tkcalendar import *
 import math
 from db import Database
 
-database = Database("water_database.db")
+database = Database("database/water_database.db")
 
 
 def center_window(root, width, height):
@@ -47,19 +47,6 @@ class FrameSetting:
         pass_entry.insert(0, record[1])
         self.entries.append(pass_entry)
 
-        # row_id = 0
-        # for i in range(2):
-        #     # lb = Label(self.setting_frame, text=col, bg="#b3ecff")
-        #     # lb.place(x=200, y=0)
-        #     en = Entry(self.setting_frame, relief="flat", width=21, font=("Calibri", 12), bg="#d9eff4")
-        #     en.insert(0, record[row_id])
-        #     self.entries.append(en)
-        #     if row_id == 0:
-        #         en['state'] = DISABLED
-        #     en.grid()
-        #
-        #     row_id += 1
-
         btn_submit = Button(self.setting_frame, image=self.sub_btn, command=self.submit, relief=FLAT, bg="#d9eff4",
                             activebackground="#d9eff4")
         btn_submit.place(x=390, y=330)
@@ -70,9 +57,6 @@ class FrameSetting:
             records.append(entry.get())
 
         database.update('adminlogin', records, records[0])
-
-        # database.delete_row('adminlogin', records[0])
-        # database.insert_gui('adminlogin', tuple(records))
 
         print("To be Update: ", 'adminlogi ', records)
 

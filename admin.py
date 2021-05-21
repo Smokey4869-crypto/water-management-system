@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from PIL import ImageTk, Image
 
 
-database = Database("water_database.db")
+database = Database("database/water_database.db")
 
 
 def center_window(root, width, height):
@@ -140,9 +140,6 @@ class WinUpdate:
             records.append(entry.get())
 
         database.update(table_name, records, records[0])
-
-        # database.delete_row(table_name, records[0])
-        # database.insert_gui(table_name, tuple(records))
 
         self.frame_table.redraw()
 
@@ -655,10 +652,6 @@ class FrameSetting:
         self.draw()
 
     def draw(self):
-        # self.profile = LabelFrame(self.fr_sett, text='Change Password', bg="#ffe6ee")
-        # self.profile.place(x=330, y=50)
-        # record = database.search_exact('adminlogin', 'username', self.username)[0]
-        # cols = database.get_col('adminlogin')
         self.setting_frame = Label(self.root, image=self.image_fr, bg="white", relief=FLAT)
         self.setting_frame.place(x=300, y=126)
 
@@ -675,19 +668,6 @@ class FrameSetting:
         pass_entry.insert(0, record[1])
         self.entries.append(pass_entry)
 
-        # row_id = 0
-        # for col in cols:
-        #     lb = Label(self.profile, text=col, bg="#ffe6ee")
-        #     lb.grid(row=row_id, column=0, padx=5, pady=5)
-        #     en = Entry(self.profile)
-        #     en.insert(0, record[row_id])
-        #     self.entries.append(en)
-        #     if row_id == 0:
-        #         en['state'] = DISABLED
-        #     en.grid(row=row_id, column=1, padx=5, pady=5)
-        #
-        #     row_id += 1
-
         btn_submit = Button(self.setting_frame, image=self.sub_btn, command=self.submit, relief=FLAT, bg="#f9cbdf",
                             activebackground="#f9cbdf")
         btn_submit.place(x=390, y=330)
@@ -698,9 +678,6 @@ class FrameSetting:
             records.append(entry.get())
 
         database.update('adminlogin', records, records[0])
-
-        # database.delete_row('adminlogin', records[0])
-        # database.insert_gui('adminlogin', tuple(records))
 
         print("To be Update: ", 'adminlogi ', records)
 
