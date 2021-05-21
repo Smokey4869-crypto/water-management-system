@@ -1,10 +1,7 @@
-CREATE TABLE "employeelogin" (
-	employee_id	varchar(10) UNIQUE,
-	password	varchar(10) NOT NULL,
-	FOREIGN KEY("employee_id") REFERENCES "employee"("employee_id"),
-	PRIMARY KEY(employee_id)
+CREATE TABLE "adminlogin" (
+	username	varchar(10) NOT NULL,
+	password	varchar(10) NOT NULL
 )
-
 CREATE TABLE "employee" (
 	"employee_id"	varchar(10) NOT NULL,
 	"name"	varchar(30) NOT NULL,
@@ -19,20 +16,24 @@ CREATE TABLE "employee" (
 
 CREATE TABLE "supplier" (
 	"supplier_id"	INTEGER NOT NULL,
-	"supplier_name"	varchar(30) NOT NULL,
-	"phone"	varchar(10) NOT NULL,
+	"supplier_name"	varchar(30),
+	"phone"	varchar(10),
 	PRIMARY KEY("supplier_id" AUTOINCREMENT)
 )
 
-
 CREATE TABLE "area" (
 	"area_id"	INTEGER NOT NULL,
-	"areaname"	varchar(30) NOT NULL,
-	"supplier_id" INTEGER NOT NULL,
-	FOREIGN KEY("supplier_id") REFERENCES "supplier"("supplier_id") ON DELETE SET NULL,
-	PRIMARY KEY("area_id" AUTOINCREMENT)
+	"areaname"	varchar(30),
+	"supplier_id"	INTEGER,
+	PRIMARY KEY("area_id" AUTOINCREMENT),
+	FOREIGN KEY("supplier_id") REFERENCES "supplier"("supplier_id") ON DELETE SET NULL
 )
 
+CREATE TABLE "servicetype" (
+	"service_type_id"	INTEGER NOT NULL,
+	"service_type_name"	varchar(50),
+	PRIMARY KEY("service_type_id" AUTOINCREMENT)
+)
 
 CREATE TABLE "service" (
 	"service_id"	INTEGER NOT NULL,
@@ -46,25 +47,6 @@ CREATE TABLE "service" (
 	FOREIGN KEY("service_type_id") REFERENCES "servicetype"("service_type_id") ON DELETE SET NULL
 )
 
-CREATE TABLE "servicetype" (
-	"service_type_id"	INTEGER NOT NULL,
-	"service_type_name"	varchar(50),
-	PRIMARY KEY("service_type_id" AUTOINCREMENT)
-)
-
-CREATE TABLE "service" (
-	"service_id"	INTEGER NOT NULL,
-	"household_id"	INTEGER,
-	"service_type_id"	varchar(20),
-	"service_request"	varchar(1000),
-	"service_status"	varchar(10),
-	"date"	date,
-	PRIMARY KEY("service_id" AUTOINCREMENT),
-	FOREIGN KEY("household_id") REFERENCES "household"("household_id") ON DELETE SET NULL,
-	FOREIGN KEY("service_type_id") REFERENCES "service_type"("service_type_id") ON DELETE SET NULL
-)
-
-
 CREATE TABLE "household" (
 	"household_id"	INTEGER NOT NULL,
 	"household_owner"	varchar(30),
@@ -75,22 +57,15 @@ CREATE TABLE "household" (
 )
 
 CREATE TABLE "billing" (
-	"billing_id"	INTEGER,
+	"billing_id"	INTEGER NOT NULL,
 	"household_id"	INTEGER,
 	"water_consumption"	number(10),
 	"from_date"	date,
 	"to_date"	date,
 	"total_money"	number(12),
-	"is_paid" number(1),
+	"is_paid"	number(1),
 	FOREIGN KEY("household_id") REFERENCES "household"("household_id") ON DELETE SET NULL,
-	PRIMARY KEY("billing_id"AUTOINCREMENT)
-)
-
-CREATE TABLE "householdlogin" (
-	household_id INTEGER NOT NULL,
-	password	varchar(10) NOT NULL,
-	FOREIGN KEY("household_id") REFERENCES "household"("household_id"),
-	PRIMARY KEY("household_id")
+	PRIMARY KEY("billing_id" AUTOINCREMENT)
 )
 CREATE TABLE "address" (
 	"address_id"	INTEGER NOT NULL,
