@@ -177,9 +177,8 @@ class WinDelete:
 
 
 class FrameSelectWinCharts:
-    def __init__(self, win_chart, frame):
+    def __init__(self, win_chart):
         self.win_chart = win_chart
-        self.frame = frame
         self.fr_select = LabelFrame()
         self.lb_select = Label()
         self.cbx_select = ttk.Combobox()
@@ -189,7 +188,7 @@ class FrameSelectWinCharts:
         self.btn_show = Button()
 
     def draw(self, fr_chart, values):
-        self.fr_select = LabelFrame(self.frame, bg="#bfffc0", relief=FLAT)
+        self.fr_select = LabelFrame(self.win_chart, bg="#bfffc0", relief=FLAT)
         self.fr_select.place(x=50, y=50)
 
         self.lb_select = Label(self.fr_select, text="Get Info About", bg="#bfffc0")
@@ -222,9 +221,8 @@ class FrameSelectWinCharts:
 
 
 class FrameChartWinCharts:
-    def __init__(self, root, frame, emp):
+    def __init__(self, root, emp):
         self.root = root
-        self.frame = frame
         self.fr_chart = LabelFrame()
         self.c_type = []
         self.emp = emp
@@ -232,7 +230,7 @@ class FrameChartWinCharts:
     def draw(self, c_type):
         plt.close('all')
         self.fr_chart.destroy()
-        self.fr_chart = LabelFrame(self.frame, bg="#bfffc0", relief=FLAT)
+        self.fr_chart = LabelFrame(self.root, bg="#bfffc0", relief=FLAT)
         self.fr_chart.place(x=60, y=170)
         self.c_type = c_type
 
@@ -398,8 +396,8 @@ class WinCharts:
         self.chart_bg = ImageTk.PhotoImage(Image.open("images//Chart_emp-01.png").resize((600, 600), Image.ANTIALIAS))
         self.frame = Label(self.win_chart, image=self.chart_bg, bg="white", relief=FLAT)
         self.frame.place(x=0, y=0)
-        self.fr_select = FrameSelectWinCharts(self.win_chart, self.frame)
-        self.fr_chart = FrameChartWinCharts(self.win_chart, self.frame, self.emp)
+        self.fr_select = FrameSelectWinCharts(self.win_chart)
+        self.fr_chart = FrameChartWinCharts(self.win_chart, self.emp)
 
         self.draw()
 

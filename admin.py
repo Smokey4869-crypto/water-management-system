@@ -171,9 +171,8 @@ class WinDelete:
 
 
 class FrameSelectWinChart:
-    def __init__(self, root, frame):
+    def __init__(self, root):
         self.root = root
-        self.frame = frame
         self.fr_select = LabelFrame()
         self.cbx_values = []
         self.lb_select = Label()
@@ -184,7 +183,7 @@ class FrameSelectWinChart:
         self.btn_done = Button()
 
     def draw(self, fr_chart, cbx_values):
-        self.fr_select = LabelFrame(self.frame, bg="#ffcccc", relief=FLAT)
+        self.fr_select = LabelFrame(self.root, bg="#ffcccc", relief=FLAT)
         self.fr_select.place(x=50, y=40)
         self.cbx_values = cbx_values
         self.lb_select = Label(self.fr_select, text="Get Info About", bg="#ffcccc")
@@ -224,16 +223,16 @@ class FrameSelectWinChart:
 
 
 class FrameChartWinChart:
-    def __init__(self, root, frame):
+    def __init__(self, root, fr_select):
         self.root = root
-        self.frame = frame
+        self.fr_select = fr_select
         self.fr_chart = LabelFrame()
         self.c_type = []
 
     def draw(self, c_type):
         plt.close('all')
         self.fr_chart.destroy()
-        self.fr_chart = LabelFrame(self.frame, bg="#ffcccc", relief=FLAT)
+        self.fr_chart = LabelFrame(self.root, bg="#ffcccc", relief=FLAT)
         self.fr_chart.place(x=50, y=180)
         self.c_type = c_type
         if c_type[0] == 'employee':
@@ -430,10 +429,9 @@ class WinCharts:
         self.win_charts.resizable(False, False)
         self.chart_bg = ImageTk.PhotoImage(Image.open("images//Chart_admin.png").resize((1000, 600), Image.ANTIALIAS))
         self.frame = Label(self.win_charts, image=self.chart_bg, bg="white", relief=FLAT)
+        self.fr_select = FrameSelectWinChart(self.win_charts)
+        self.fr_chart = FrameChartWinChart(self.win_charts, self.fr_select)
         self.frame.place(x=0, y=0)
-
-        self.fr_select = FrameSelectWinChart(self.win_charts, self.frame)
-        self.fr_chart = FrameChartWinChart(self.win_charts, self.frame)
 
     def draw(self):
         plt.close()
