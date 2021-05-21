@@ -1,7 +1,7 @@
 # Water management system in Hanoi
 
-# Advanced python project group 3\
-## Members:\
+# Advanced python project group 3
+## Members:
 Nguyễn Xuân Tùng BI10-188(leader)\
 Nguyễn Quang Anh BI10-012\
 Trần Hồng Quân BI10-149\
