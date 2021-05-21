@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkcalendar import *
 import math
 from db import Database
+from water import Login
 
 database = Database("database/water_database.db")
 
@@ -385,7 +386,6 @@ class Customers:
     def click_logout(self):
         ask = messagebox.askyesnocancel("Confirm Logout", "Are you sure you want to Log Out")
         if ask is True:
-            from water import Login
             self.root.destroy()
             win = Tk()
             Login(win)
@@ -394,7 +394,9 @@ class Customers:
         self.root.deiconify()
         ask = messagebox.askyesnocancel("Confirm Exit", "Are you sure you want to Exit?")
         if ask is True:
-            self.root.quit()
+            self.root.destroy()
+            win = Tk()
+            Login(win)
 
     def click_home(self):
         home_frame = Label(self.root,  image=self.home_bg, bg="white", relief=FLAT)
