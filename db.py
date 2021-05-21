@@ -264,17 +264,23 @@ class Database:
             return e
 
     def total_num(self, table):
-        self.cursorObj.execute(f"SELECT COUNT(*) FROM {table}")
-        result = self.cursorObj.fetchone()
-        return result[0]
+        try:
+            self.cursorObj.execute(f"SELECT COUNT(*) FROM {table}")
+            result = self.cursorObj.fetchone()
+            return result[0]
+        except Error as e:
+            return e
 
     def total_household_by_area(self, id):
-        self.cursorObj.execute(f"""select count(household_owner), area.areaname from household 
-                               inner join address on household.address_id = address.address_id 
-                               inner join area on address.area_id = area.area_id 
-                               where area.area_id = {id}""")
-        result = self.cursorObj.fetchone()
-        return result
+        try:
+            self.cursorObj.execute(f"""select count(household_owner), area.areaname from household 
+                                   inner join address on household.address_id = address.address_id 
+                                   inner join area on address.area_id = area.area_id 
+                                   where area.area_id = {id}""")
+            result = self.cursorObj.fetchone()
+            return result
+        except Error as e:
+            return e
 
     def households_by_area(self, area_id):
         try:
@@ -291,59 +297,77 @@ class Database:
             return e
 
     def total_area_by_supplier(self):
-        self.cursorObj.execute("select supplier_name, count(distinct area.areaname) as total_district_supply "
-                               "from supplier, area, address "
-                               "where area.area_id = address.area_id "
-                               "and area.supplier_id = supplier.supplier_id "
-                               "group by area.supplier_id")
-        result = self.cursorObj.fetchall()
-        return result
+        try:
+            self.cursorObj.execute("select supplier_name, count(distinct area.areaname) as total_district_supply "
+                                   "from supplier, area, address "
+                                   "where area.area_id = address.area_id "
+                                   "and area.supplier_id = supplier.supplier_id "
+                                   "group by area.supplier_id")
+            result = self.cursorObj.fetchall()
+            return result
+        except Error as e:
+            return e
 
     def total_employee_by_area(self, id):
-        self.cursorObj.execute(f"select count(*) from employee where area_id = {id}")
-        result = self.cursorObj.fetchone()
-        return result
+        try:
+            self.cursorObj.execute(f"select count(*) from employee where area_id = {id}")
+            result = self.cursorObj.fetchone()
+            return result
+        except Error as e:
+            return e
 
     def total_household_not_paid(self, id):
-        self.cursorObj.execute("select area.areaname, count(is_paid) as total from household "
-                               "inner join address on household.address_id = address.address_id "
-                               "inner join area on address.area_id = area.area_id "
-                               "inner join billing on billing.household_id = household.household_id "
-                               f"where area.area_id = {id} and billing.is_paid=0")
-        result = self.cursorObj.fetchone()
-        return result
+        try:
+            self.cursorObj.execute("select area.areaname, count(is_paid) as total from household "
+                                   "inner join address on household.address_id = address.address_id "
+                                   "inner join area on address.area_id = area.area_id "
+                                   "inner join billing on billing.household_id = household.household_id "
+                                   f"where area.area_id = {id} and billing.is_paid=0")
+            result = self.cursorObj.fetchone()
+            return result
+        except Error as e:
+            return e
 
     def water_consumed_per_month_by_year(self, id, year):
-        self.cursorObj.execute(f"""SELECT water_consumption, from_date FROM billing 
-                                WHERE household_id = {id}""")
-        data = self.cursorObj.fetchall()
-        water_amounts = []
-        months = []
-        for record in data:
-            if record[1][0:4] == year:
-                water_amounts.append(record[0])
-                months.append(record[1][5:7])
-        return months, water_amounts
+        try:
+            self.cursorObj.execute(f"""SELECT water_consumption, from_date FROM billing 
+                                    WHERE household_id = {id}""")
+            data = self.cursorObj.fetchall()
+            water_amounts = []
+            months = []
+            for record in data:
+                if record[1][0:4] == year:
+                    water_amounts.append(record[0])
+                    months.append(record[1][5:7])
+            return months, water_amounts
+        except Error as e:
+            return e
 
     def money_consumed_per_month_by_year(self, id, year):
-        self.cursorObj.execute(f"""SELECT total_money, from_date FROM billing 
-                                WHERE household_id = {id}""")
-        data = self.cursorObj.fetchall()
-        amount_of_money = []
-        months = []
-        for record in data:
-            if record[1][0:4] == year:
-                amount_of_money.append(record[0])
-                months.append(record[1][5:7])
-        return months, amount_of_money
+        try:
+            self.cursorObj.execute(f"""SELECT total_money, from_date FROM billing 
+                                    WHERE household_id = {id}""")
+            data = self.cursorObj.fetchall()
+            amount_of_money = []
+            months = []
+            for record in data:
+                if record[1][0:4] == year:
+                    amount_of_money.append(record[0])
+                    months.append(record[1][5:7])
+            return months, amount_of_money
+        except Error as e:
+            return e
 
     def get_customer_info(self):
-        self.cursorObj.execute("SELECT household.household_id, household.household_owner, area.areaname,"
-                               "address.address_name FROM household "
-                               "INNER JOIN address ON household.address_id = address.address_id "
-                               "INNER JOIN area ON area.area_id = address.area_id")
-        results = self.cursorObj.fetchall()
-        return results
+        try:
+            self.cursorObj.execute("SELECT household.household_id, household.household_owner, area.areaname,"
+                                   "address.address_name FROM household "
+                                   "INNER JOIN address ON household.address_id = address.address_id "
+                                   "INNER JOIN area ON area.area_id = address.area_id")
+            results = self.cursorObj.fetchall()
+            return results
+        except Error as e:
+            return e
 
     def column_unique(self, table, column):
         try:
@@ -356,71 +380,89 @@ class Database:
             return e
 
     def average_money_by_address(self, list):
-        self.cursorObj.execute(
-            "select address.address_id,round(avg(total_money),2) as average_money from billing,household,address "
-            "where household.household_id=billing.household_id and address.address_id=household.address_id "
-            "group by household.address_id;")
-        result = self.cursorObj.fetchall()
-        print(result)
-        final_results = []
-        for i in list:
-            for j in result:
-                if i == j[0]:
-                    final_results.append((i, j[1]))
+        try:
+            self.cursorObj.execute(
+                "select address.address_id,round(avg(total_money),2) as average_money from billing,household,address "
+                "where household.household_id=billing.household_id and address.address_id=household.address_id "
+                "group by household.address_id;")
+            result = self.cursorObj.fetchall()
+            print(result)
+            final_results = []
+            for i in list:
+                for j in result:
+                    if i == j[0]:
+                        final_results.append((i, j[1]))
 
-        return final_results
+            return final_results
+        except Error as e:
+            return e
 
     def average_money_by_household(self,list):
-        self.cursorObj.execute(
-            "select household.household_id,round(avg(total_money),2) from billing,household  "
-            "where household.household_id=billing.household_id "
-            "group by billing.household_id;")
-        result = self.cursorObj.fetchall()
-        final_results = []
-        for i in list:
-            for j in result:
-                if i == j[0]:
-                    final_results.append((i, j[1]))
+        try:
+            self.cursorObj.execute(
+                "select household.household_id,round(avg(total_money),2) from billing,household  "
+                "where household.household_id=billing.household_id "
+                "group by billing.household_id;")
+            result = self.cursorObj.fetchall()
+            final_results = []
+            for i in list:
+                for j in result:
+                    if i == j[0]:
+                        final_results.append((i, j[1]))
 
-        return final_results
+            return final_results
+        except Error as e:
+            return e
 
     def average_water_by_address(self,list):
-        self.cursorObj.execute(
-            "select address.address_id,round(avg(water_consumption),2) as average_money from billing,household,address "
-            "where household.household_id=billing.household_id and address.address_id=household.address_id "
-            "group by household.address_id;")
-        result = self.cursorObj.fetchall()
-        final_results = []
-        for i in list:
-            for j in result:
-                if i == j[0]:
-                    final_results.append((i, j[1]))
+        try:
+            self.cursorObj.execute(
+                "select address.address_id,round(avg(water_consumption),2) as average_money from billing,household,address "
+                "where household.household_id=billing.household_id and address.address_id=household.address_id "
+                "group by household.address_id;")
+            result = self.cursorObj.fetchall()
+            final_results = []
+            for i in list:
+                for j in result:
+                    if i == j[0]:
+                        final_results.append((i, j[1]))
 
-        return final_results
+            return final_results
+        except Error as e:
+            return e
 
     def average_water_by_household(self,list):
-        self.cursorObj.execute(
-            "select household.household_id,round(avg(water_consumption),2) from billing,household "
-            "where household.household_id=billing.household_id "
-            "group by billing.household_id;")
-        result = self.cursorObj.fetchall()
-        final_results = []
-        for i in list:
-            for j in result:
-                if i == j[0]:
-                    final_results.append((i, j[1]))
+        try:
+            self.cursorObj.execute(
+                "select household.household_id,round(avg(water_consumption),2) from billing,household "
+                "where household.household_id=billing.household_id "
+                "group by billing.household_id;")
+            result = self.cursorObj.fetchall()
+            final_results = []
+            for i in list:
+                for j in result:
+                    if i == j[0]:
+                        final_results.append((i, j[1]))
 
-        return final_results
+            return final_results
+        except Error as e:
+            return e
 
     def max_billing(self):
-        self.cursorObj.execute("select max(billing_id) from billing")
-        result = self.cursorObj.fetchone()
-        return result[0]
+        try:
+            self.cursorObj.execute("select max(billing_id) from billing")
+            result = self.cursorObj.fetchone()
+            return result[0]
+        except Error as e:
+            return e
 
     def view_bill(self):
-        self.cursorObj.execute("SELECT *, CASE WHEN is_paid = 1 THEN 'Yes' ELSE 'No' END as paid FROM billing")
-        results = self.cursorObj.fetchall()
-        return results
+        try:
+            self.cursorObj.execute("SELECT *, CASE WHEN is_paid = 1 THEN 'Yes' ELSE 'No' END as paid FROM billing")
+            results = self.cursorObj.fetchall()
+            return results
+        except Error as e:
+            return e
 
 
 def main():
