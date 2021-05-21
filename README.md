@@ -9,7 +9,7 @@ Lữ Khánh Huyền BI10-083\
 Vũ Đức Chính BI10-024
 
 ## Features
-This project is a simple Desktop application made in python. It is made in order to keep tracks of water consumption and money paid of households in Hanoi.
+This project is a simple Desktop application made in python. The main function is to keep tracks of water consumption and money paid of households in Hanoi as well as provides CRUD operations.
 * Beatuiful UI everywhere.
 * Login and logout with admin, employees, or households.
 * CRUD operations on all pages.
