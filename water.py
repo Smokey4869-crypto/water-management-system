@@ -6,7 +6,7 @@ from employee import EmployeeWindow
 from admin import AdminWindow
 from tkinter import messagebox
 
-database = Database("water_database.db")
+database = Database("database/water_database.db")
 
 
 def center_window(root, width, height):

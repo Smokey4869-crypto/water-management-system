@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from PIL import ImageTk, Image
 from tkinter import messagebox
 
-database = Database("water_database.db")
+database = Database("database/water_database.db")
 
 
 def center_window(root, width, height):
