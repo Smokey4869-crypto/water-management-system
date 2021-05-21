@@ -462,39 +462,3 @@ class Database:
             return results
         except Error as e:
             return e
-
-
-def main():
-    db = Database(filename='water.db')
-    # db.get_information_bill(1)
-    # db.total_amount_of_water_by_area()
-    # err = db.search("household", "hello", "10")
-    # print(err)
-    # db.update_value('supplier', ['supplier_name', 'CompFive'], ['supplier_id', '5'])
-    # db.delete_row('supplier', 'supplier_id', [13, 12])
-    # print(db.get_col_type('billing'))
-    # print(db.value_consumed_by_suppliers_or_areas([{'adress_id': [1, 2, 3]}], "water_consumption"))
-    # print(db.value_consumed_by_household(year='2021', month='1'))
-    # print(db.value_consumed_by_household(year='2020'))
-    # print(db.value_consumed_by_household())
-    # print(db.water_consumed_by_area([1, 2, 3, 4]))
-    # print(db.num_emp_gender('F'))
-    # print(db.num_emp_role('director'))
-    # print(db.num_households_in_area('4'))
-    # print(db.num_area_of_suppliers([1, 2, 3]))
-    # print(db.search_exact('employee', 'employee_id', 'emp1'))
-    # print(db.search_exact('household', 'address_id', 1))
-    # print(db.total_supplier_by_area())
-    # print(db.total_employee_by_area())
-    # print(db.get_all_col_record_in_table('area', 0))
-    # print(db.get_all_col_record_in_table('area', 1))
-    # print(db.total_household_by_area(2))
-    # print(db.total_employee_by_area(10)[0])
-    # print(db.total_household_not_paid(1))
-    # print(db.get_customer_info())
-    print(db.households_by_area(1))
-
-
-if __name__ == '__main__':
-    main()
-
