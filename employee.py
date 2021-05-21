@@ -539,7 +539,7 @@ class FrameActionWinEmployee:
         self.fr_action.place(x=50, y=10)
 
         # take addresses in area
-        values = []
+        values = ["All Results"]
         addresses = database.search_exact('address', 'area_id', self.area_id)
         for address in addresses:
             values.append(address[2])
@@ -548,6 +548,7 @@ class FrameActionWinEmployee:
         self.lb_address.grid(row=0, column=0)
         self.cbx_address = ttk.Combobox(self.fr_action, values=values)
         self.cbx_address.grid(row=0, column=1, columnspan=3)
+        self.cbx_address.current(0)
 
         self.cbx_address.bind("<<ComboboxSelected>>", lambda _: self.change_cbx_hh(self.cbx_address.get()))
 
@@ -555,6 +556,8 @@ class FrameActionWinEmployee:
         self.lb_hh.grid(row=0, column=4)
         self.cbx_hh = ttk.Combobox(self.fr_action)
         self.cbx_hh.grid(row=0, column=5)
+        self.cbx_hh['values'] = ['All Results']
+        self.cbx_hh.current(0)
 
         self.btn_search = Button(self.fr_action, text="Search", command=self.search, bg="#85e085")
         self.btn_search.grid(row=0, column=6, padx=5, pady=5)
@@ -569,17 +572,22 @@ class FrameActionWinEmployee:
         self.btn_chart.grid(row=1, column=3, padx=5, pady=5)
 
     def change_cbx_hh(self, address):
-        # get address_id
-        address_id = database.search_exact('address', 'address_name', address)[0][0]
+        if address == "All Results":
+            values = ["All Results"]
+            self.cbx_hh['values'] = values
+            self.cbx_hh.current(0)
+        else:
+            values = []
+            # get address_id
+            address_id = database.search_exact('address', 'address_name', address)[0][0]
 
-        # get hh by address_id
-        values = []
-        households = database.search_exact('household', 'address_id', address_id)
-        for household in households:
-            values.append(household[0])
+            # get hh by address_id
+            households = database.search_exact('household', 'address_id', address_id)
+            for household in households:
+                values.append(household[0])
 
-        self.cbx_hh['values'] = values
-        self.cbx_hh.current(0)
+            self.cbx_hh['values'] = values
+            self.cbx_hh.current(0)
 
     def search(self):
         self.fr_table.redraw('billing', 'household_id', self.cbx_hh.get())
@@ -598,21 +606,48 @@ class FrameActionWinEmployee:
 
 
 class FrameTableWinEmployee:
-    def __init__(self, frame):
-        # self.root = root
+    def __init__(self, emp, frame):
+        self.emp = emp
         self.frame = frame
         self.fr_table = LabelFrame()
         self.table_results = ttk.Treeview()
         self.curr_row = []
 
-    # Input ('billing', 'household_id', 'exact', txt)
     def draw(self):
         self.fr_table.destroy()
         self.fr_table = LabelFrame(self.frame, text="Tables", bg="#ccffcc")
         self.fr_table.place(x=50, y=100)
 
     def redraw(self, table, by_column, txt):
+        if txt == "All Results":
+            self.draw_all_results(table)
+        else:
+            self.draw()
+            tree_scroll = Scrollbar(self.fr_table)
+            tree_scroll.pack(side=RIGHT, fill=Y)
+            self.table_results = ttk.Treeview(self.fr_table, yscrollcommand=tree_scroll.set, selectmode="extended")
+            tree_scroll.config(command=self.table_results.yview)
+            columns = database.get_col(table)
+            self.table_results['columns'] = columns
+            self.table_results.column('#0', width=0, stretch=NO)
+
+            for column in columns:
+                self.table_results.column(column, anchor=CENTER, width=105, minwidth=25)
+                self.table_results.heading(column, text=column, anchor=CENTER)
+
+            data_results = database.search_exact(table, by_column, txt)
+
+            count_area = 0
+            for record in data_results:
+                self.table_results.insert(parent='', index='end', iid=count_area, values=record)
+                count_area += 1
+
+            self.table_results.bind('<ButtonRelease-1>', lambda _: self.track_row())
+            self.table_results.pack(fill='both', padx=10, pady=10)
+
+    def draw_all_results(self, table):
         self.draw()
+        area_id = self.emp[6]
         tree_scroll = Scrollbar(self.fr_table)
         tree_scroll.pack(side=RIGHT, fill=Y)
         self.table_results = ttk.Treeview(self.fr_table, yscrollcommand=tree_scroll.set, selectmode="extended")
@@ -625,7 +660,15 @@ class FrameTableWinEmployee:
             self.table_results.column(column, anchor=CENTER, width=105, minwidth=25)
             self.table_results.heading(column, text=column, anchor=CENTER)
 
-        data_results = database.search_exact(table, by_column, txt)
+        households = database.households_by_area(area_id)
+        ids = []
+        for household in households:
+            ids.append(household[0])
+
+        data_results = []
+        for id_ in ids:
+            data_results += database.search_exact('billing', 'household_id', id_)
+        sorted(data_results)
 
         count_area = 0
         for record in data_results:
@@ -685,10 +728,10 @@ class FrameResultWinEmployee:
     def mana(self):
         self.draw()
 
-        self.fr_table = FrameTableWinEmployee(self.fr_result)
+        self.fr_table = FrameTableWinEmployee(self.emp, self.fr_result)
         self.fr_action = FrameActionWinEmployee(self.root, self.fr_result, self.emp, self.fr_table)
         self.fr_action.draw()
-        self.fr_table.draw()
+        self.fr_table.draw_all_results('billing')
 
     def setting(self):
         self.draw()

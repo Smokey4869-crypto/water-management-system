@@ -276,6 +276,20 @@ class Database:
         result = self.cursorObj.fetchone()
         return result
 
+    def households_by_area(self, area_id):
+        try:
+            result = []
+            for row in self.cursorObj.execute(
+                    f"""SELECT household.household_id, household.household_owner,household.address_id, household.phone 
+                           FROM address
+                           INNER JOIN household
+                           ON household.address_id = address.address_id
+                           WHERE address.area_id = '{area_id}'"""):
+                result.append(row)
+            return result
+        except Error as e:
+            return e
+
     def total_area_by_supplier(self):
         self.cursorObj.execute("select supplier_name, count(distinct area.areaname) as total_district_supply "
                                "from supplier, area, address "
@@ -437,6 +451,7 @@ def main():
     # print(db.total_employee_by_area(10)[0])
     # print(db.total_household_not_paid(1))
     # print(db.get_customer_info())
+    print(db.households_by_area(1))
 
 
 if __name__ == '__main__':
