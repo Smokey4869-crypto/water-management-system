@@ -211,7 +211,7 @@ class FrameSelectWinChart:
 
     def change_cbx_type(self, selection):
         if selection == 'employee':
-            self.cbx_type['values'] = ['gender (pie chart)', 'gender (bar char)', 'desingnation']
+            self.cbx_type['values'] = ['gender (pie chart)', 'gender (bar chart)', 'designation']
         elif selection == 'household':
             self.cbx_type['values'] = ['num in each area']
         elif selection == 'area':
@@ -225,10 +225,6 @@ class FrameSelectWinChart:
 
         self.cbx_type.current(0)
 
-    def done(self):
-        plt.close('all')
-        self.root.destroy()
-
 
 class FrameChartWinChart:
     def __init__(self, root, frame):
@@ -238,6 +234,7 @@ class FrameChartWinChart:
         self.c_type = []
 
     def draw(self, c_type):
+        plt.close('all')
         self.fr_chart.destroy()
         self.fr_chart = LabelFrame(self.frame, bg="#ffcccc", relief=FLAT)
         self.fr_chart.place(x=50, y=180)
@@ -442,6 +439,7 @@ class WinCharts:
         self.fr_chart = FrameChartWinChart(self.win_charts, self.frame)
 
     def draw(self):
+        plt.close()
         cbx_values = ['employee', 'household', 'area', 'billing']
 
         self.fr_select.draw(self.fr_chart, cbx_values)

@@ -220,10 +220,6 @@ class FrameSelectWinCharts:
 
         self.cbx_type.current(0)
 
-    def done(self):
-        plt.close('all')
-        self.win_chart.destroy()
-
 
 class FrameChartWinCharts:
     def __init__(self, root, frame, emp):
@@ -234,6 +230,7 @@ class FrameChartWinCharts:
         self.emp = emp
 
     def draw(self, c_type):
+        plt.close('all')
         self.fr_chart.destroy()
         self.fr_chart = LabelFrame(self.frame, bg="#bfffc0", relief=FLAT)
         self.fr_chart.place(x=60, y=170)
@@ -349,7 +346,6 @@ class FrameChartWinCharts:
 
         plt.bar(labels, values)
         plt.xlabel("Addresses in the area")
-        plt.ylabel("Amount of money")
         plt.title("Money spent in each address")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
@@ -382,7 +378,6 @@ class FrameChartWinCharts:
 
         plt.bar(labels, values)
         plt.xlabel("Households in the area")
-        plt.ylabel("Amount of money")
         plt.title("Money spent in each household")
 
         canvas = FigureCanvasTkAgg(f, self.fr_chart)
