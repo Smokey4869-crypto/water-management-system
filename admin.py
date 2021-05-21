@@ -206,9 +206,6 @@ class FrameSelectWinChart:
                                command=lambda: fr_chart.draw([self.cbx_select.get(), self.cbx_type.get()]))
         self.btn_show.grid(row=1, column=3, padx=5, pady=5)
 
-        self.btn_done = Button(self.fr_select, text="Done", command=self.done, bg="#ffcccc")
-        self.btn_done.grid(row=1, column=4, padx=5, pady=5)
-
     def change_cbx_type(self, selection):
         if selection == 'employee':
             self.cbx_type['values'] = ['gender (pie chart)', 'gender (bar chart)', 'designation']
