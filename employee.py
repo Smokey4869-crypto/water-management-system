@@ -720,7 +720,10 @@ class FrameResultWinEmployee:
         FrameSetting(self.root, self.emp[0])
 
     def exit(self):
-        self.root.destroy()
+        self.root.deiconify()
+        ask = messagebox.askyesnocancel("Confirm Exit", "Are you sure you want to Exit?")
+        if ask is True:
+            self.root.destroy()
 
 
 class EmployeeWindow:
