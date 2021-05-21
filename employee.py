@@ -668,7 +668,7 @@ class FrameTableWinEmployee:
         data_results = []
         for id_ in ids:
             data_results += database.search_exact('billing', 'household_id', id_)
-        sorted(data_results)
+        data_results = sorted(data_results, key=lambda x: x[0])
 
         count_area = 0
         for record in data_results:
