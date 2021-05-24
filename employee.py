@@ -39,7 +39,7 @@ class WinAdd:
         self.draw()
 
     def draw(self):
-        if len(self.hh_id) != 1:
+        if self.hh_id == 'All Results':
             self.winAdd.destroy()
             messagebox.showwarning(title=None, message='Please pick a Household Id')
         else:
